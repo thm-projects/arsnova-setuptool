@@ -1,0 +1,15 @@
+{
+	"_id":"_design/admin",
+	"language":"javascript",
+	"views":{
+		"count_doc_types":{
+			"map":"function(doc) { emit(doc.type, 1); }",
+			"reduce":"_sum"
+		}
+	},
+	"shows":{
+		"example":"function(doc, req) {var body = '<ul>';doc.possibleAnswers.forEach(function(pA){body += '<li>' + pA.text + '</li>';});body += '</ul';return {body : body,headers : {'Content-Type' : 'text/html','X-My-Own-Header': 'you can set your own headers'}}}",
+		"test":"function(doc, req){return {body: 'Hallo' + doc.possibleAnswers}}"
+	},
+	"validate_doc_update":"function(newDoc, oldDoc, userCtx) {   function require(field, message) {     message = 'Document must have a ' + field; if (!newDoc[field]) throw({forbidden : 'Document must have a ' + field}); };if (newDoc.type == 'session') {require('name');require('shortName');require('keyword');require('creator');}if (newDoc.type == 'interposed_question') {require('sessionId');require('text');} }"
+}

@@ -1,0 +1,28 @@
+{
+	"_id":"_design/session",
+	"language":"javascript",
+	"views":{
+		"all":{
+			"map":"function(doc) { if(doc.type == 'session') emit(null, doc); }"
+		},
+		"count":{
+			"map":"function(doc) { if(doc.type == 'session') emit('sessions', doc); }",
+			"reduce":"function(keys, values){ return ('sessions', values.length); }"
+		},
+		"by_keyword":{
+			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword, doc); }"
+		},
+		"by_creator":{
+			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active}); }"
+		},
+		"getIds":{
+			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword); }"
+		},
+		"by_id":{
+			"map":"function(doc) { if(doc.type == 'session') emit(doc._id, doc); }"
+		},
+		"is_active":{
+			"map":"function(doc) { if(doc.type == 'session') emit(doc._id, doc.active); }"
+	   }
+    }
+}

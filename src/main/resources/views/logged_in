@@ -1,0 +1,19 @@
+{
+	"_id":"_design/logged_in",
+	"language":"javascript",
+	"views":{
+		"all":{
+			"map":"function(doc) { if (doc.type == 'logged_in'){ emit(doc.user, doc); }}"
+		},
+		"count":{
+			"map":"function(doc) { if (doc.type == 'logged_in'){ emit([doc.sessionId, doc.timestamp], 1); }}",
+			"reduce":"_count"
+		},
+		"cleanup":{
+			"map":"function(doc) { if (doc.type == 'logged_in' && doc.user == null){ emit(doc.user, doc._rev); }}"
+		},
+		"visited_sessions_by_user": {
+	       "map": "function(doc) { if(doc.type == 'logged_in') { emit(doc.user, doc.visitedSessions); }}"
+	   }
+	}
+}

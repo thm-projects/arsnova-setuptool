@@ -1,0 +1,24 @@
+{
+	"_id":"_design/understanding",
+	"language":"javascript",
+	"views":{
+		"by_session":{
+			"map":"function(doc) { if (doc.type == 'understanding'){ emit([doc.sessionId, doc.value], 1); }}",
+			"reduce":"_sum"
+		},
+		"by_user":{
+			"map":"function(doc) { if (doc.type == 'understanding'){ emit([doc.sessionId, doc.user], doc); }}"
+		},
+		"avg_by_session":{
+			"map":"function(doc) { if (doc.type == 'understanding'){ switch(doc.value){ case 'Bitte schneller': emit(doc.sessionId, 4); break; case 'Kann folgen': emit(doc.sessionId, 3); break; case 'Zu schnell': emit(doc.sessionId, 2); break; case 'Nicht mehr dabei': emit(doc.sessionId, 1); break; }}}",
+			"reduce":"function(keys, values) { return Math.round(sum(values)/values.length);}"
+		},
+		"count_by_session":{
+			"map":"function(doc) { if (doc.type == 'understanding'){ emit(doc.sessionId, 1);}}",
+			"reduce":"_count"
+		},
+		"cleanup":{
+			"map":"function(doc) { if (doc.type == 'understanding'){ emit(doc.timestamp, doc._rev); }}"
+		}
+	}
+}

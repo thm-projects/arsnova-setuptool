@@ -1,0 +1,13 @@
+{
+	"_id":"_design/interposed_question",
+	"language":"javascript",
+	"views":{
+		"by_session":{
+			"map":"function(doc) { if (doc.type == 'interposed_question') { emit(doc.sessionId, {subject: doc.subject,timestamp: doc.timestamp,rev: doc._rev, read: doc.read}); }}"
+		},
+		"count_by_session":{
+			"map": "function(doc) { if (doc.type == 'interposed_question') { if (doc.read) { emit([doc.sessionId, 'read'], doc); } else { emit([doc.sessionId, 'unread'], doc); }}}",
+			"reduce":"_count"
+		} 
+	}
+}
