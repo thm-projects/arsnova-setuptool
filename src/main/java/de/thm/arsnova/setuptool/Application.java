@@ -99,16 +99,16 @@ public class Application {
 		if (documentExists(documentName)) {
 			deleteDocument(documentName);
 			createDocument(documentName, viewCode);
-			System.out.println("View '" + documentName + "' has been updated");
+			System.out.println("Design document '" + documentName + "' has been updated");
 			return;
 		}
 
 		if (createDocument(documentName, viewCode))
-			System.out.println("View '" + documentName + "' has been created");
+			System.out.println("Design document '" + documentName + "' has been created");
 	}
 
 	private String getDocumentUri(String documentName) {
-		return this.getDatabaseUri() + "/_document/" + documentName;
+		return this.getDatabaseUri() + "/_design/" + documentName;
 	}
 
 	private boolean documentExists(String documentName) {
@@ -147,7 +147,6 @@ public class Application {
 					this.getDocumentUri(documentName) + "?rev=" + documentRev(documentName));
 			HttpResponse response = httpClient.execute(delete);
 			EntityUtils.consume(response.getEntity());
-			System.out.println(response.getStatusLine().getStatusCode());
 			if (response.getStatusLine().getStatusCode() == 204)
 				return true;
 		} catch (Exception e) {
@@ -165,8 +164,6 @@ public class Application {
 					ContentType.create("application/json", "UTF-8"));
 			post.setEntity(entity);
 			HttpResponse response = httpClient.execute(post);
-			System.out.println(EntityUtils.toString(response.getEntity()));
-			System.out.println("X" + response.getStatusLine().getStatusCode());
 			EntityUtils.consume(response.getEntity());
 			if (response.getStatusLine().getStatusCode() == 201)
 				return true;
@@ -179,6 +176,10 @@ public class Application {
 	}
 
 	private String getDatabaseUri() {
+		if (databaseUser.isEmpty() && databasePasswd.isEmpty()) {
+			return "http://" + databaseHost + ":" + databasePort + "/" + databaseName;
+		}
+		
 		return "http://" + databaseUser + ":" + databasePasswd + "@"
 				+ databaseHost + ":" + databasePort + "/" + databaseName;
 	}
