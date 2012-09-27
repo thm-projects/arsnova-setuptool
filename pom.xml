@@ -47,9 +47,14 @@
 			<version>3.1.2.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>couchdb4j</groupId>
-			<artifactId>couchdb4j</artifactId>
-			<version>0.3.0-i386-1</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-lgpl</artifactId>
+			<version>1.9.9</version>
 		</dependency>
 	</dependencies>
 </project>
