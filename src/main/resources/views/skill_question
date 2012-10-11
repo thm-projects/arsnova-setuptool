@@ -8,6 +8,9 @@
 		"by_session":{
 			"map":"function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject], doc); }}"
 		},
+		"by_session_sorted_by_subject_and_text": {
+			"map": "function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
 		"count_by_session":{
 			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, doc); }}",
 			"reduce":"_count"
