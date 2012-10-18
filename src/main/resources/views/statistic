@@ -9,6 +9,14 @@
 		"count_sessions":{
 			"map":"function(doc) { if (doc.type == 'session') { if(doc.active == 1){ emit('openSessions', 1); } else { emit('closedSessions', 1);}} if (doc.type == 'skill_question') { emit('questions', 1); } if (doc.type == 'skill_question_answer') { emit('answers', 1);  }}",
 			"reduce":"_count"
+		},
+		"count_active_sessions": {
+			"map": "function(doc) { if (doc.type == 'session' && doc.active == 1 && doc.lastOwnerActivity) { emit(doc.lastOwnerActivity, 1); }}",
+			"reduce": "_sum"
+		},
+		"count_active_users_with_session": {
+			"map": "function(doc) { if (doc.type == 'logged_in' && doc.sessionId){ emit(doc.timestamp, doc.sessionId); }}",
+			"reduce": "_count"
 		}
 	}
 }
