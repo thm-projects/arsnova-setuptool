@@ -1,10 +1,14 @@
 package de.thm.arsnova.setuptool;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.JarURLConnection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -60,8 +64,7 @@ public class Application {
 	}
 
 	public static void main(String[] args) throws IOException {
-		ApplicationContext context = new ClassPathXmlApplicationContext(
-				"application-context.xml");
+		ApplicationContext context = new ClassPathXmlApplicationContext("application-context.xml");
 		Application app = context.getBean(Application.class);
 
 		app.startup();
@@ -74,25 +77,33 @@ public class Application {
 		}
 
 		try {
-			File viewDirectory = new ClassPathResource("views").getFile();
-			if (viewDirectory.isDirectory()) {
-				for (File viewFile : viewDirectory.listFiles()) {
-					BufferedReader reader = new BufferedReader(new FileReader(
-							viewFile));
-
-					StringBuilder sb = new StringBuilder();
-					String line;
-					while ((line = reader.readLine()) != null) {
-						sb.append(line);
-					}
-					reader.close();
-
-					this.setupView(viewFile.getName(), sb.toString());
-				}
+			JarURLConnection url = (JarURLConnection) new ClassPathResource("views").getURL().openConnection();
+			JarFile jar = url.getJarFile();
+			for (JarEntry entry : Collections.list(jar.entries())) {
+				if (! entry.getName().startsWith("views/")) continue;
+				if (entry.isDirectory()) continue;
+				
+				String fileName = entry.getName();
+				String viewName = fileName.substring(fileName.indexOf("/") + 1);
+				System.out.println("> Processing view '" + viewName + "'");
+				
+				String contents = readFileContents(jar.getInputStream(entry));
+				setupView(viewName, contents);
 			}
 		} catch (Exception e) {
 			System.out.println("An error occured on view setup process");
 		}
+	}
+
+	private String readFileContents(InputStream inputStream) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			sb.append(line);
+		}
+		reader.close();
+		return sb.toString();
 	}
 
 	private void setupView(String documentName, String viewCode) {
@@ -134,7 +145,7 @@ public class Application {
 			EntityUtils.consume(getResponse.getEntity());
 			ObjectMapper mapper = new ObjectMapper();
 			@SuppressWarnings("unchecked")
-			Map<String,Object> documentData = mapper.readValue(document, Map.class);
+			Map<String, Object> documentData = mapper.readValue(document, Map.class);
 			return documentData.get("_rev").toString();
 		} catch (Exception e) {
 		}
@@ -143,8 +154,7 @@ public class Application {
 
 	private boolean deleteDocument(String documentName) {
 		try {
-			HttpDelete delete = new HttpDelete(
-					this.getDocumentUri(documentName) + "?rev=" + documentRev(documentName));
+			HttpDelete delete = new HttpDelete(this.getDocumentUri(documentName) + "?rev=" + documentRev(documentName));
 			HttpResponse response = httpClient.execute(delete);
 			EntityUtils.consume(response.getEntity());
 			if (response.getStatusLine().getStatusCode() == 204)
@@ -160,8 +170,7 @@ public class Application {
 	private boolean createDocument(String documentName, String contents) {
 		try {
 			HttpPost post = new HttpPost(this.getDatabaseUri());
-			StringEntity entity = new StringEntity(contents,
-					ContentType.create("application/json", "UTF-8"));
+			StringEntity entity = new StringEntity(contents, ContentType.create("application/json", "UTF-8"));
 			post.setEntity(entity);
 			HttpResponse response = httpClient.execute(post);
 			EntityUtils.consume(response.getEntity());
@@ -179,9 +188,9 @@ public class Application {
 		if (databaseUser.isEmpty() && databasePasswd.isEmpty()) {
 			return "http://" + databaseHost + ":" + databasePort + "/" + databaseName;
 		}
-		
-		return "http://" + databaseUser + ":" + databasePasswd + "@"
-				+ databaseHost + ":" + databasePort + "/" + databaseName;
+
+		return "http://" + databaseUser + ":" + databasePasswd + "@" + databaseHost + ":" + databasePort + "/"
+				+ databaseName;
 	}
 
 	private boolean databaseExists() {
