@@ -14,6 +14,9 @@
 		},
 		"visited_sessions_by_user": {
 			"map": "function(doc) { if(doc.type == 'logged_in') { emit(doc.user, doc.visitedSessions); }}"
+		},
+		"by_and_only_timestamp_and_username":{
+			"map": "function(doc) { if (doc.type == 'logged_in' && doc.user != null ){ emit([doc.timestamp, doc.user], null); }}"
 		}
 	}
 }
