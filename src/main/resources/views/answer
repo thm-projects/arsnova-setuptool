@@ -5,6 +5,9 @@
 		"by_question_and_user":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.user], doc); }}"
 		},
+		"by_question_and_user_and_piround":{
+			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.user, doc.piRound], doc); }}"
+		},
 		"by_session":{
 			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, doc);  } else if (doc.type == 'skill_question_answer') { emit([doc.sessionId, 1, doc.user], doc.answerText); }}"
 		},
