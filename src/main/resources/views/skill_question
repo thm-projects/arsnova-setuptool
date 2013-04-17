@@ -34,6 +34,9 @@
 		"freetext_answers":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, { _id: doc._id, _rev: doc._rev, timestamp: doc.timestamp, subject: doc.answerSubject, text: doc.answerText }); } }"
 		},
+		"freetext_answers_full":{
+			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }"
+		},
 		"by_id":{
 			"map":"function(doc) { if (doc.type == 'skill_question') emit(doc._id, doc); }"
 		},
