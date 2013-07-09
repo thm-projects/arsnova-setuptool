@@ -31,6 +31,10 @@
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }",
 			"reduce":"_count"
 		},
+		"count_abstention_answers_by_question": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer' && doc.abstention) { emit(doc.questionId, doc); } }",
+			"reduce": "_count"
+		},
 		"freetext_answers":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, { _id: doc._id, _rev: doc._rev, timestamp: doc.timestamp, subject: doc.answerSubject, text: doc.answerText }); } }"
 		},
