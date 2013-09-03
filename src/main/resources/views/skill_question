@@ -1,73 +1,116 @@
 {
-	"_id":"_design/skill_question",
-	"language":"javascript",
-	"views":{
-		"user_answers":{
-			"map":"function(doc) { if (doc.type == 'question') { emit([doc._id], doc); } else if (doc.type == 'answer') { emit([doc.questionId, 1, doc.text], doc); }}"
+	"_id": "_design/skill_question",
+	"language": "javascript",
+	"views": {
+		"user_answers": {
+			"map": "function(doc) { if (doc.type == 'question') { emit([doc._id], doc); } else if (doc.type == 'answer') { emit([doc.questionId, 1, doc.text], doc); }}"
 		},
-		"by_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject], doc); }}"
+		"by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject], doc); }}"
+		},
+		"preparation_question_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation') { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"flashcard_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard') { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"lecture_question_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
 		"by_session_sorted_by_subject_and_text": {
 			"map": "function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
-		"count_by_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, doc); }}",
-			"reduce":"_count"
+		"count_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, doc); }}",
+			"reduce": "_count"
 		},
-		"count_answers_by_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.sessionId, doc); } }",
-			"reduce":"_count"
+		"preparation_question_count_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation') { emit(doc.sessionId, doc); }}",
+			"reduce": "_count"
 		},
-		"count_answers":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText, doc.answerSubject], 1); }}",
-			"reduce":"_sum"
+		"flashcard_count_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard') { emit(doc.sessionId, doc); }}",
+			"reduce": "_count"
+		},
+		"lecture_question_count_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture') { emit(doc.sessionId, doc); }}",
+			"reduce": "_count"
+		},
+		"count_answers_by_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.sessionId, doc); } }",
+			"reduce": "_count"
+		},
+		"count_answers_by_session_and_question_variant": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.sessionId, doc.questionVariant], doc); } }",
+			"reduce": "_count"
+		},
+		"count_answers": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText, doc.answerSubject], 1); }}",
+			"reduce": "_sum"
 		},
 		"count_answers_by_question_and_piround": {
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound, doc.answerText], 1); }}",
-			"reduce":"_sum"
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound, doc.answerText], 1); }}",
+			"reduce": "_sum"
 		},
-		"count_answers_by_question":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }",
-			"reduce":"_count"
+		"count_answers_by_question": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }",
+			"reduce": "_count"
 		},
 		"count_abstention_answers_by_question": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer' && doc.abstention) { emit(doc.questionId, doc); } }",
 			"reduce": "_count"
 		},
-		"freetext_answers":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, { _id: doc._id, _rev: doc._rev, timestamp: doc.timestamp, subject: doc.answerSubject, text: doc.answerText }); } }"
+		"freetext_answers": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, { _id: doc._id, _rev: doc._rev, timestamp: doc.timestamp, subject: doc.answerSubject, text: doc.answerText }); } }"
 		},
-		"freetext_answers_full":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }"
+		"freetext_answers_full": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }"
 		},
-		"by_id":{
-			"map":"function(doc) { if (doc.type == 'skill_question') emit(doc._id, doc); }"
+		"by_id": {
+			"map": "function(doc) { if (doc.type == 'skill_question') emit(doc._id, doc); }"
 		},
-		"max_number_in_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question') emit(doc.sessionId, doc.number); }",
-			"reduce":"function(keys, values){ var max = 0; values.forEach(function(value){ if(value > max) max = value; }); return max;}"
+		"max_number_in_session": {
+			"map": "function(doc) { if (doc.type == 'skill_question') emit(doc.sessionId, doc.number); }",
+			"reduce": "function(keys, values){ var max = 0; values.forEach(function(value){ if(value > max) max = value; }); return max;}"
 		},
-		"for_delete":{
-			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, {_id: doc._id, _rev: doc._rev}); }}"
+		"for_delete": {
+			"map": "function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, {_id: doc._id, _rev: doc._rev}); }}"
 		},
-		"by_session_for_thm":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
+		"by_session_for_thm": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
 		},
-		"by_session_for_thm_full":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		"by_session_for_thm_full": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
-		"by_session_only_id_for_all":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, null); }}"
+		"preparation_question_by_session_for_thm": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
-		"by_session_for_all":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
+		"flashcard_by_session_for_thm": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
-		"by_session_for_all_full":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		"lecture_question_by_session_for_thm": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
-		"by_session_only_id_for_thm":{
-			"map":"function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
+		"by_session_only_id_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, null); }}"
+		},
+		"by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
+		},
+		"by_session_for_all_full": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"preparation_question_by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"flashcard_by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"lecture_question_by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"by_session_only_id_for_thm": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
 		}
 	}
 }
