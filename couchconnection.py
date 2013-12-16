@@ -24,10 +24,19 @@ class CouchConnection(httplib.HTTPConnection):
         self.request("POST", path, body, header)
         return self.getresponse()
 
+    def json_post(self, path, body, header={}):
+        h = { "Content-Type": "application/json" }
+        self.request("POST", path, body, dict(h.items() + header.items()))
+        return self.getresponse()
+
     def put(self, path, body, header={}):
         self.request("PUT", path, body, header)
         return self.getresponse()
 
+    def json_put(self, path, body, header={}):
+        h = { "Content-Type": "application/json" }
+        self.request("PUT", path, body, dict(h.items() + header.items()))
+        return self.getresponse()
 
 
 
