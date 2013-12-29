@@ -38,6 +38,8 @@ class CouchConnection(httplib.HTTPConnection):
         self.request("PUT", path, body, dict(h.items() + header.items()))
         return self.getresponse()
 
+    def temp_view(self, path, body, header={}):
+        return self.json_post(path + "/_temp_view", body, header)
 
 
 def arsnova_connection(propertypath):
