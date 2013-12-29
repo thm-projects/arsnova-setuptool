@@ -24,18 +24,35 @@ def migrate(migration):
     #   added 'questionVariant' field, defaulting to 'lecture' value
     if current_version == 0:
         def question_migration(view):
-            res = conn.get(view)
-            doc = json.loads(res.read())
-            ds = []
-            for col in doc["rows"]:
-                val = col["value"]
-                if not val.has_key("questionVariant"):
-                    ds.append(val)
-            for d in ds:
-                d["questionVariant"] = "lecture"
-            res = conn.json_post(bulk_url, json.dumps({"docs":ds}))
-            ress = res.read()
-            print ress
+            # We are doing three steps:
+            #   1) Load all documents we are going to migrate in bulk
+            #   2) Each document that is not migrated yet is changed
+            #   3) Update all changed documents in bulk
+            #
+            # Because the documents could change in the database while
+            # we perform any of these steps, we will get an error for
+            # those documents. To solve this we repeat all steps until
+            # no more errors occur.
+            while True:
+                res = conn.get(view)
+                doc = json.loads(res.read())
+                ds = []
+                for col in doc["rows"]:
+                    val = col["value"]
+                    if not val.has_key("questionVariant"):
+                        ds.append(val)
+                for d in ds:
+                    d["questionVariant"] = "lecture"
+                res = conn.json_post(bulk_url, json.dumps({"docs":ds}))
+                result_docs = json.loads(res.read())
+                errors = []
+                for result in result_docs:
+                    if result.has_key("error"):
+                        errors.append(result)
+                if not errors:
+                    # All documents were migrated.
+                    # jump out of loop and exit this function
+                    break
         # skill_question
         question_migration(db_url + "/_design/skill_question/_view/by_id")
         # skill_question_answer
