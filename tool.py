@@ -1,23 +1,7 @@
-import httplib, json
+import couchconnection, json
 import sys
 import socket
-import os, io
-import base64
-import ConfigParser
-
-class CouchConnection(httplib.HTTPConnection):
-	"""docstring for CouchConnection"""
-	def __init__(self, host="127.0.0.1", port=5984, username="", password=""):
-		httplib.HTTPConnection.__init__(self, host, port)
-		self.username = username
-		self.password = password		
-
-	def request(self, method, path, body="", header={}):
-		if self.username != "" and self.password != "":
-			creds = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-			header["Authorization"] = "Basic %s" % creds
-		httplib.HTTPConnection.request(self, method, path, body, header)
-		
+import os
 
 def database_exists(conn, db):
 	conn.request("HEAD", "/" + db)
@@ -72,22 +56,9 @@ def view_process(conn, db, view):
 		if not view_update(conn, view_url, open(view, "r")):
 			print "... update FAILED!"
 
-propertypath = "/etc/arsnova/arsnova.properties"
-f = open(propertypath, "r")
-properties = f.read()
-f.close()
-
-config = ConfigParser.RawConfigParser()
-config.readfp(io.BytesIO("[arsnova]" + properties))
-host = config.get("arsnova", "couchdb.host")
-port = config.get("arsnova", "couchdb.port")
-db = config.get("arsnova", "couchdb.name")
-username = config.get("arsnova", "couchdb.username")
-password = config.get("arsnova", "couchdb.password")
-
 viewpath = "src/main/resources/views"
 
-conn = CouchConnection(host, port, username, password)
+(db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 try:
 	if not database_exists(conn, db):
 		print "Creating database '" + db + "'..."
