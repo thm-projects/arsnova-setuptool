@@ -12,7 +12,7 @@ class CouchConnection(httplib.HTTPConnection):
 
     def request(self, method, path, body="", header={}):
         if self.username != "" and self.password != "":
-            creds = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+            creds = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
             header["Authorization"] = "Basic %s" % creds
         httplib.HTTPConnection.request(self, method, path, body, header)
 
