@@ -1,0 +1,9 @@
+{
+	"_id":"_design/user",
+	"language":"javascript",
+	"views":{
+		"all":{
+			"map":"function(doc) { if (doc.type == 'userdetails') emit(doc.username, doc); }"
+		}
+	}
+}
