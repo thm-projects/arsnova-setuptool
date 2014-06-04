@@ -3,7 +3,7 @@
 	"language": "javascript",
 	"views": {
 		"course_value": {
-			"map": "function(doc) { if (doc.type === 'skill_question_answer') { emit(doc.sessionId, doc.questionValue || 0); } }",
+			"map": "function(doc) { if (doc.type === 'skill_question_answer') { emit(doc.sessionId, [Math.max(doc.questionValue || 0, 0), 1]); } }",
 			"reduce": "_sum"
 		}
 	}
