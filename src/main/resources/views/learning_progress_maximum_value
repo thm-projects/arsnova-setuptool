@@ -1,0 +1,10 @@
+{
+	"_id": "_design/learning_progress_maximum_value",
+	"language": "javascript",
+	"views": {
+		"max": {
+			"map": "function(doc) { /*The question's value is determined by the maximum of all possibleAnswer values. We assume that a correct answer is assigned a positive value, while a negative value suggests a wrong answer. The goal then is to get the highest possible value. This leaves us with two cases: 1) On any single choice question, the value is the maximum of all possibleAnswer values. 2) On a multiple choice question, we add up all positive values. Since the question's author could mark certain answers as 'correct', we will consider that as well: The three cases above are applied only to 'correct' answers, if they are available.*/ var value = 0, correctAnswers = [], answers = [], positiveAnswers = [], score = 0; if (doc.type === 'skill_question' && ['freetext', 'vote', 'school', 'flashcard'].indexOf(doc.questionType) === -1) { correctAnswers = doc.possibleAnswers.filter(function(answer) { return answer.correct; }); /*if correct answers are not available, use the full 'possibleAnswers' array*/ answers = correctAnswers.length === 0 ? doc.possibleAnswers : correctAnswers; answers = answers.map(function(answer) { return answer.value || 0; }); /*find the maximum value*/ value = Math.max.apply(null, answers); /*special case for mc and grid questions: add up all positive answers.*/ if (['grid', 'mc'].indexOf(doc.questionType) !== -1) { positiveAnswers = answers.filter(function(val) { return val >= 0; }); if (positiveAnswers.length > 0) { value = positiveAnswers.reduce(function(prev, cur) { return prev + cur; }); } } emit(doc.sessionId, value); } }",
+			"reduce": "_sum"
+		}
+	}
+}

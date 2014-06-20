@@ -1,0 +1,10 @@
+{
+	"_id": "_design/learning_progress_user_values",
+	"language": "javascript",
+	"views": {
+		"sum": {
+			"map": "function(doc) { if (doc.type === 'skill_question_answer' && doc.abstention !== true) {/*The 'questionValue' contains the points scored with this answer, and this could be negative if a wrong answer was given. However, we do not want negative values, so we set the lower bound to 0.*/score = Math.max(doc.questionValue || 0, 0); emit([doc.sessionId, doc.user], score); } }",
+			"reduce": "_sum"
+		}
+	}
+}
