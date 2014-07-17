@@ -23,6 +23,9 @@
 		},
 		"is_active":{
 			"map":"function(doc) { if(doc.type == 'session') emit(doc._id, doc.active); }"
-	   }
-    }
+		},
+		"by_courseid":{
+			"map":"function(doc) { if(doc.type == 'session' && doc.courseId ) emit(doc.courseId, doc); }"
+		}
+	}
 }
