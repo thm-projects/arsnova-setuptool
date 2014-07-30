@@ -13,7 +13,7 @@
 			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword, doc); }"
 		},
 		"by_creator":{
-			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active}); }"
+			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType}); }"
 		},
 		"getIds":{
 			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword); }"
