@@ -3,7 +3,7 @@
 	"language":"javascript",
 	"views":{
 		"by_session":{
-			"map":"function(doc) { if (doc.type == 'interposed_question') { emit(doc.sessionId, {subject: doc.subject,timestamp: doc.timestamp,rev: doc._rev, read: doc.read}); }}"
+			"map":"function(doc) { if (doc.type == 'interposed_question') { emit(doc.sessionId, {subject: doc.subject,timestamp: doc.timestamp,_rev: doc._rev, read: doc.read}); }}"
 		},
 		"count_by_session":{
 			"map":"function(doc) { if (doc.type == 'interposed_question') { emit(doc.sessionId, doc); }}",
