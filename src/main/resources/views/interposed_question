@@ -15,6 +15,10 @@
 		"count_by_session_reading":{
 			"map": "function(doc) { if (doc.type == 'interposed_question') { if (doc.read) { emit([doc.sessionId, 'read'], doc); } else { emit([doc.sessionId, 'unread'], doc); }}}",
 			"reduce":"_count"
+		},
+		"count_by_session_reading_for_creator":{
+			"map": "function(doc) { if (doc.type == 'interposed_question') { if (doc.read) { emit([doc.sessionId, doc.creator, 'read'], doc); } else { emit([doc.sessionId, doc.creator, 'unread'], doc); }}}",
+			"reduce":"_count"
 		}
 	}
 }
