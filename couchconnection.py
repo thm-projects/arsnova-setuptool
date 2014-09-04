@@ -2,6 +2,7 @@ import httplib
 import base64
 import ConfigParser
 import io
+import json
 
 class CouchConnection(httplib.HTTPConnection):
     """docstring for CouchConnection"""
@@ -20,11 +21,11 @@ class CouchConnection(httplib.HTTPConnection):
         self.request("GET", path, "", header)
         return self.getresponse()
 
-    def post(self, path, body, header={}):
+    def post(self, path, body=None, header={}):
         self.request("POST", path, body, header)
         return self.getresponse()
 
-    def json_post(self, path, body, header={}):
+    def json_post(self, path, body=None, header={}):
         h = { "Content-Type": "application/json" }
         self.request("POST", path, body, dict(h.items() + header.items()))
         return self.getresponse()
@@ -37,6 +38,17 @@ class CouchConnection(httplib.HTTPConnection):
         h = { "Content-Type": "application/json" }
         self.request("PUT", path, body, dict(h.items() + header.items()))
         return self.getresponse()
+
+    def delete(self, path, body=None, header={}):
+        self.request("GET", path)
+        res = self.getresponse()
+        doc = json.loads(res.read())
+        if "_rev" in doc:
+            self.request("DELETE", path + "?rev=" + doc["_rev"], body, header)
+            res = self.getresponse()
+            return res.read()
+        else:
+            return False
 
     def temp_view(self, path, body, header={}):
         return self.json_post(path + "/_temp_view", body, header)
