@@ -80,41 +80,23 @@
 		"for_delete": {
 			"map": "function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, {_id: doc._id, _rev: doc._rev}); }}"
 		},
-		"by_session_for_thm": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
-		},
-		"by_session_for_thm_full": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
-		},
-		"preparation_question_by_session_for_thm": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
-		},
-		"flashcard_by_session_for_thm": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
-		},
-		"lecture_question_by_session_for_thm": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
-		},
 		"by_session_only_id_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, null); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
 		},
 		"by_session_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
 		},
 		"by_session_for_all_full": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
 		"preparation_question_by_session_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
 		"flashcard_by_session_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
 		"lecture_question_by_session_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1 && (!doc.releasedFor || doc.releasedFor == 'all')) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
-		},
-		"by_session_only_id_for_thm": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		}
 	}
 }
