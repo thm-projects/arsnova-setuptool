@@ -18,6 +18,7 @@ def bump(next_version):
 def migrate(migration):
     global db_url, migrations_url
     bulk_url = db_url + "/_bulk_docs"
+    cleanup_url = db_url + "/_view_cleanup"
     current_version = migration["version"]
     
     # Changes to 'skill_question' and 'skill_question_answer':
@@ -69,8 +70,18 @@ def migrate(migration):
         print bump(current_version)
     
     if current_version == 1:
+        print "Deleting obsolete food vote design document..."
+        if not conn.delete(db_url + "/_design/food_vote"):
+            print "Food vote design document not found"
+        # bump database version
+        current_version = 2
+        print bump(current_version)
+    
+    if current_version == 2:
         # next migration goes here
         pass
+    
+    conn.json_post(cleanup_url)
 
 conn.request("GET", migrations_url)
 res = conn.getresponse()
