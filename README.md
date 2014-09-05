@@ -31,8 +31,8 @@ We also leverage the cloud provided by [Travis CI](https://travis-ci.org/) and [
 
 Our official build status provided by Travis CI:
 
-- [![Build Status](https://travis-ci.org/thm-projects/arsnova-war.svg?branch=master)](https://travis-ci.org/thm-projects/arsnova-war) for ARSnova-war
-- [![Build Status](https://travis-ci.org/thm-projects/arsnova-mobile.svg?branch=master)](https://travis-ci.org/thm-projects/arsnova-mobile) for ARSnova-mobile
+- [![Build Status](https://travis-ci.org/thm-projects/arsnova-backend.svg?branch=master)](https://travis-ci.org/thm-projects/arsnova-backend) for ARSnova Backend
+- [![Build Status](https://travis-ci.org/thm-projects/arsnova-mobile.svg?branch=master)](https://travis-ci.org/thm-projects/arsnova-mobile) for ARSnova Mobile
 
 ## Usage
 
