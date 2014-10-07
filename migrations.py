@@ -20,14 +20,14 @@ def migrate(migration):
     bulk_url = db_url + "/_bulk_docs"
     cleanup_url = db_url + "/_view_cleanup"
     current_version = migration["version"]
-    
+
     # Changes to 'skill_question' and 'skill_question_answer':
     #   added 'questionVariant' field, defaulting to 'lecture' value
     if current_version == 0:
         def question_migration():
             questions = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question') emit(doc._id, doc); }\" }"
             answers = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question_answer') emit(doc._id, doc); }\" }"
-            
+
             # We are doing three steps:
             #   1) Load all documents we are going to migrate in bulk
             #   2) Each document that is not migrated yet is changed
@@ -62,13 +62,13 @@ def migrate(migration):
             migrate_with_temp_view(questions)
             print "Migrating all Answer documents..."
             migrate_with_temp_view(answers)
-        
+
         # skill_question
         question_migration()
         # bump database version
         current_version = 1
         print bump(current_version)
-    
+
     if current_version == 1:
         print "Deleting obsolete food vote design document..."
         if not conn.delete(db_url + "/_design/food_vote"):
@@ -76,11 +76,23 @@ def migrate(migration):
         # bump database version
         current_version = 2
         print bump(current_version)
-    
+
     if current_version == 2:
+      print "Deleting obsolete user ranking, understanding, and admin design documents..."
+      if not conn.delete(db_url + "/_design/user_ranking"):
+          print "User ranking design document not found"
+      if not conn.delete(db_url + "/_design/understanding"):
+          print "Understanding design document not found"
+      if not conn.delete(db_url + "/_design/admin"):
+          print "Admin design document not found"
+      # bump database version
+      current_version = 3
+      print bump(current_version)
+
+    if current_version == 3:
         # next migration goes here
         pass
-    
+
     conn.json_post(cleanup_url)
 
 conn.request("GET", migrations_url)

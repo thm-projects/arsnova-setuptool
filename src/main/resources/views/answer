@@ -2,29 +2,14 @@
 	"_id":"_design/answer",
 	"language":"javascript",
 	"views":{
-		"by_question_and_user":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.user], doc); }}"
-		},
 		"by_question_and_user_and_piround":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.user, doc.piRound], doc); }}"
-		},
-		"by_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, doc);  } else if (doc.type == 'skill_question_answer') { emit([doc.sessionId, 1, doc.user], doc.answerText); }}"
-		},
-		"by_session_and_question":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.sessionId, doc.questionId], doc.user); }}"
-		},
-		"unanswered":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.sessionId, {user: doc.user, questionId: doc.questionId});  }  if (doc.type == 'skill_question') { emit(doc.sessionId, doc); }}"},"cleanup":{"map":"function(doc) {if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc._rev);}}"},"unanswered2":{"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.sessionId, doc.user], {user: doc.user, questionId: doc.questionId}); } if (doc.type == 'skill_question') { emit(doc.sessionId, doc); }}"
 		},
 		"by_user":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.user, doc.sessionId], doc.questionId); }}"
 		},
 		"variant_by_user":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.user, doc.sessionId, doc.questionVariant], doc.questionId); }}"
-		},
-		"by_user_and_session":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.user, doc.sessionId], { questionId: doc.questionId, answerText: doc.answerText, answerSubject: doc.answerSubject, piRound: doc.piRound}); }}"
 		},
 		"by_user_and_session_full":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.user, doc.sessionId], doc); }}"
