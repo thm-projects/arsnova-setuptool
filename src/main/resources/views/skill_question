@@ -92,11 +92,17 @@
 		"preparation_question_by_session_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
+		"preparation_question_ids_by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], {}); }}"
+		},
 		"flashcard_by_session_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'flashcard' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
 		},
 		"lecture_question_by_session_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
+		},
+		"lecture_question_ids_by_session_for_all": {
+			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], {}); }}"
 		}
 	}
 }
