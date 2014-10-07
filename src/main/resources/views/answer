@@ -13,6 +13,9 @@
 		},
 		"by_user_and_session_full":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.user, doc.sessionId], doc); }}"
+		},
+		"cleanup":{
+			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc._id); }}"
 		}
 	}
 }
