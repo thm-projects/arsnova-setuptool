@@ -2,9 +2,6 @@
 	"_id": "_design/skill_question",
 	"language": "javascript",
 	"views": {
-		"user_answers": {
-			"map": "function(doc) { if (doc.type == 'question') { emit([doc._id], doc); } else if (doc.type == 'answer') { emit([doc.questionId, 1, doc.text], doc); }}"
-		},
 		"by_session": {
 			"map": "function(doc) { if (doc.type == 'skill_question') { emit([doc.sessionId, doc.subject], doc); }}"
 		},
@@ -44,17 +41,9 @@
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.sessionId, doc.questionVariant], doc); } }",
 			"reduce": "_count"
 		},
-		"count_answers": {
-			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText, doc.answerSubject], 1); }}",
-			"reduce": "_sum"
-		},
 		"count_answers_by_question_and_piround": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound, doc.answerText], 1); }}",
 			"reduce": "_sum"
-		},
-		"count_answers_by_question": {
-			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }",
-			"reduce": "_count"
 		},
 		"count_total_answers_by_question_and_piround": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound], 1); }}",
@@ -64,27 +53,14 @@
 			"map": "function(doc) { if (doc.type == 'skill_question_answer' && doc.abstention) { emit(doc.questionId, doc); } }",
 			"reduce": "_count"
 		},
-		"freetext_answers": {
-			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, { _id: doc._id, _rev: doc._rev, timestamp: doc.timestamp, subject: doc.answerSubject, text: doc.answerText }); } }"
-		},
 		"freetext_answers_full": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }"
 		},
 		"by_id": {
 			"map": "function(doc) { if (doc.type == 'skill_question') emit(doc._id, doc); }"
 		},
-		"max_number_in_session": {
-			"map": "function(doc) { if (doc.type == 'skill_question') emit(doc.sessionId, doc.number); }",
-			"reduce": "function(keys, values){ var max = 0; values.forEach(function(value){ if(value > max) max = value; }); return max;}"
-		},
-		"for_delete": {
-			"map": "function(doc) { if (doc.type == 'skill_question') { emit(doc.sessionId, {_id: doc._id, _rev: doc._rev}); }}"
-		},
 		"by_session_only_id_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
-		},
-		"by_session_for_all": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, {subject: doc.subject,text: doc.text,possibleAnswers: doc.possibleAnswers,duration: doc.duration,number: doc.number,questionType: doc.questionType,showAnswer: doc.showAnswer,showStatistic: doc.showStatistic}); }}"
 		},
 		"by_session_for_all_full": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], doc); }}"
