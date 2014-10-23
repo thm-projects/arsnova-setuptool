@@ -2,10 +2,6 @@
 	"_id":"_design/statistic",
 	"language":"javascript",
 	"views":{
-		"count_active_users":{
-			"map":"function(doc) { if (doc.type == 'logged_in'){ emit(doc.timestamp, 1); }}",
-			"reduce":"_count"
-		},
 		"count_sessions":{
 			"map":"function(doc) { if (doc.type == 'session') { if(doc.active == 1){ emit('openSessions', 1); } else { emit('closedSessions', 1);}} if (doc.type == 'skill_question') { emit('questions', 1); } if (doc.type == 'skill_question_answer') { emit('answers', 1);  }}",
 			"reduce":"_count"
