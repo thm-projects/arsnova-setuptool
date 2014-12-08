@@ -17,6 +17,7 @@ def bump(next_version):
 
 def migrate(migration):
     global db_url, migrations_url
+    all_docs_url = db_url + "/_all_docs"
     bulk_url = db_url + "/_bulk_docs"
     cleanup_url = db_url + "/_view_cleanup"
     current_version = migration["version"]
@@ -90,6 +91,40 @@ def migrate(migration):
       print bump(current_version)
 
     if current_version == 3:
+        def add_variant_to_freetext_abstention_answers():
+            answers = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question_answer' && typeof doc.questionVariant === 'undefined' && doc.abstention == true) emit(doc._id, doc.questionId); }\" }"
+
+            # get all bug-affected answer documents
+            res = conn.temp_view_with_params(db_url, "?include_docs=true", answers)
+            doc = json.loads(res.read())
+            questions = []
+            answers = []
+            for col in doc["rows"]:
+                questions.append(col["value"])
+                answers.append(col["doc"])
+            # bulk fetch all (unique) question documents of which we found problematic answers
+            res = conn.json_post(all_docs_url + "?include_docs=true", json.dumps({"keys":list(set(questions))}))
+            result_docs = json.loads(res.read())
+            # we need to find the variant of each question so that we can put it into the answer document
+            questions = []
+            for result in result_docs["rows"]:
+                questions.append(result["doc"])
+            for answer in answers:
+                for question in questions:
+                    if answer["questionId"] == question["_id"]:
+                        answer["questionVariant"] = question["questionVariant"]
+            # bulk update the answers
+            res = conn.json_post(bulk_url, json.dumps({"docs":answers}))
+            result_docs = json.loads(res.read())
+            print result_docs
+
+        print "Fixing freetext answers (abstentions) with missing question variant (#13313)..."
+        add_variant_to_freetext_abstention_answers()
+        # bump database version
+        current_version = 4;
+        print bump(current_version)
+
+    if current_version == 4:
         # next migration goes here
         pass
 
