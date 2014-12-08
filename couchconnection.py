@@ -53,6 +53,9 @@ class CouchConnection(httplib.HTTPConnection):
     def temp_view(self, path, body, header={}):
         return self.json_post(path + "/_temp_view", body, header)
 
+    def temp_view_with_params(self, path, params, body, header={}):
+        return self.json_post(path + "/_temp_view" + params, body, header)
+
 
 def arsnova_connection(propertypath):
     f = open(propertypath, "r")
