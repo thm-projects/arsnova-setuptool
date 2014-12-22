@@ -6,7 +6,7 @@
 			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword, doc); }"
 		},
 		"by_creator":{
-			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType}); }"
+			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
 		},
 		"by_id":{
 			"map":"function(doc) { if(doc.type == 'session') emit(doc._id, doc); }"
