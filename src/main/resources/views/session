@@ -15,8 +15,8 @@
 			"map":"function(doc) { if(doc.type == 'session' && doc.courseId ) emit(doc.courseId, doc); }"
 		},
 		"public_pool_by_id":{
-			"map":"function(doc) { if(doc.type == 'session_public_pool') emit(doc.ppSubject, {shortName: doc.shortName, name: doc.name, keyword: doc.keyword, ppSubject: doc.ppSubject}); }",
-			"reduce": "function(keys, values, rereduce) {var objects = [];values.forEach(function(session) {objects.push(session);});return objects;}"
+			"map":"function(doc) { if(doc.type == 'session_public_pool') emit(doc.ppSubject, {name: doc.name, keyword: doc.keyword}); }",
+			"reduce": "function(keys, values, rereduce) {var objects = [];values.forEach(function(session) {session.itemCount =values.length; objects.push(session);});return objects;}"
 		}
 	}
 }
