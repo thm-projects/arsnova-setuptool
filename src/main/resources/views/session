@@ -3,7 +3,7 @@
 	"language":"javascript",
 	"views":{
 		"by_keyword":{
-			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType != 'public_pool') emit(doc.keyword, doc); }"
+			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword, doc); }"
 		},
 		"by_creator":{
 			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType != 'public_pool') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
