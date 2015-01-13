@@ -3,16 +3,16 @@
 	"language":"javascript",
 	"views":{
 		"by_keyword":{
-			"map":"function(doc) { if(doc.type == 'session') emit(doc.keyword, doc); }"
+			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType != 'public_pool') emit(doc.keyword, doc); }"
 		},
 		"by_creator":{
-			"map":"function(doc) { if(doc.type == 'session') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
+			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType != 'public_pool') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
 		},
 		"by_id":{
-			"map":"function(doc) { if(doc.type == 'session') emit(doc._id, doc); }"
+			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType != 'public_pool') emit(doc._id, doc); }"
 		},
 		"by_courseid":{
-			"map":"function(doc) { if(doc.type == 'session' && doc.courseId ) emit(doc.courseId, doc); }"
+			"map":"function(doc) { if(doc.type == 'session' && doc.courseId  && doc.sessionType != 'public_pool') emit(doc.courseId, doc); }"
 		},
 		"public_pool_by_id":{
 			"map":"function(doc) { if(doc.sessionType == 'public_pool') emit(doc.ppSubject, {ppSubject: doc.ppSubject,name: doc.name, keyword: doc.keyword}); }"
