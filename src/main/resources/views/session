@@ -16,6 +16,9 @@
 		},
 		"public_pool_by_id":{
 			"map":"function(doc) { if(doc.sessionType == 'public_pool') emit(doc.ppSubject, {ppSubject: doc.ppSubject,name: doc.name, keyword: doc.keyword}); }"
+		},
+		"public_pool_by_creator":{
+			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType == 'public_pool') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
 		}
 	}
 }
