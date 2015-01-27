@@ -1,5 +1,6 @@
 import couchconnection
 import json
+import sys
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
