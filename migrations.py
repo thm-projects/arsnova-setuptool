@@ -125,18 +125,26 @@ def migrate(migration):
         print bump(current_version)
 
     if current_version == 4:
-      print "Deleting obsolete learning_progress design documents..."
-      if not conn.delete(db_url + "/_design/learning_progress_course_answers"):
-          print "course_answers design document not found"
-      if not conn.delete(db_url + "/_design/learning_progress_maximum_value"):
-          print "maximum_value design document not found"
-      if not conn.delete(db_url + "/_design/learning_progress_user_values"):
-          print "learning_progress_user_values design document not found"
-      # bump database version
-      current_version = 5
-      print bump(current_version)
+        print "Deleting obsolete learning_progress design documents..."
+        if not conn.delete(db_url + "/_design/learning_progress_course_answers"):
+            print "course_answers design document not found"
+        if not conn.delete(db_url + "/_design/learning_progress_maximum_value"):
+            print "maximum_value design document not found"
+        if not conn.delete(db_url + "/_design/learning_progress_user_values"):
+            print "learning_progress_user_values design document not found"
+        # bump database version
+        current_version = 5
+        print bump(current_version)
 
     if current_version == 5:
+        print "Deleting misspelled 'statistic' design document..."
+        if not conn.delete(db_url + "/_design/statistic"):
+            print "'statistic' design document not found"
+        # bump database version
+        current_version = 6
+        print bump(current_version)
+
+    if current_version == 6:
         # Next migration goes here
         pass
 
