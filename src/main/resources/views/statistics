@@ -3,7 +3,7 @@
 	"language":"javascript",
 	"views":{
 		"statistics":{
-			"map":"function(doc) { if (doc.type == 'session') { if(doc.active == 1){ emit('openSessions', 1); } else { emit('closedSessions', 1);}} if (doc.type == 'skill_question') { emit('questions', 1); } if (doc.type == 'skill_question_answer') { emit('answers', 1); if (doc.type === 'interposed_question') { emit ('interposedQuestions', 1); } }}",
+			"map":"function(doc) { if (doc.type == 'session') { if (doc.active == 1) { emit('openSessions', 1); } else { emit('closedSessions', 1); } } if (doc.type == 'skill_question') { emit('questions', 1); } if (doc.type == 'skill_question_answer') { emit('answers', 1); } if (doc.type === 'interposed_question') { emit ('interposedQuestions', 1); } }",
 			"reduce":"_count"
 		}
 	}
