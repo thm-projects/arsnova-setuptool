@@ -2,8 +2,11 @@
 	"_id": "_design/question_sort",
 	"language": "javascript",
 	"views": {
+		"sortOrder_id": {
+			"map": "function(doc) { if (doc.type == 'question_sort') { emit ( doc.sessionId, doc._id ); } }"
+		},
 		"sortOrder_by_session": {
-			"map": "function(doc) { if (doc.type == 'question_sort') { emit ( doc.sessionID, doc.sortOrder ); } }"
+			"map": "function(doc) { if (doc.type == 'question_sort') { emit ( doc.sessionId, doc.sortOrder ); } }"
 		},
 		"lecture_question_by_session_sorted": {
 			"map": "function(doc) { if (doc.type == 'question_sort') { emit( doc.sessionId, null ) { for (var i in doc.sortOrder) { if (i.type == 'skill_question' && i.questionVariant == 'lecture') { emit([i.sessionId, i.subject, i.text], i); } } } } }"
