@@ -1,0 +1,12 @@
+{
+	"_id": "_design/sort_question",
+	"language": "javascript",
+	"views": {
+		"lecture question_by_sort_order": {
+			"map": "function(doc) { if (doc.type == 'sort_question' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.questionVariant], doc.sortOrder); }}"
+		},
+		"preparation_question_by_sort_order": {
+			"map": "function(doc) { if (doc.type == 'sort_question' && doc.questionVariant == 'preparation') { emit([doc.sessionId, doc.questionVariant], doc.sortOrder); }}"
+		}
+	}
+}
