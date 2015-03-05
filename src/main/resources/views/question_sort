@@ -1,12 +1,18 @@
 {
-	"_id": "_design/skill_question_sort_order",
+	"_id": "_design/question_sort",
 	"language": "javascript",
 	"views": {
-		"lecture_question_sort_order": {
-			"map": "function(doc) { if (doc.type == 'skill_question_sort_order' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.questionVariant], doc.sortOrder); }}"
+		"lecture_question_by_session_sorted": {
+			"map": "function(doc) { if (doc.type == 'question_sort') { for (var i in doc.sortOrder) { if (i.type == 'skill_question' && i.questionVariant == 'lecture') { emit([i.sessionId, i.subject, i.text], i); } } } }"
 		},
-		"preparation_question_sort_order": {
-			"map": "function(doc) { if (doc.type == 'skill_question_sort_order' && doc.questionVariant == 'preparation') { emit([doc.sessionId, doc.questionVariant], doc.sortOrder); }}"
+		"lecture_question_by_session_sorted_for_all": {
+			"map": "function(doc) { if (doc.type == 'question_sort') { for (var i in doc.sortOrder) { if (i.type == 'skill_question' && i.questionVariant == 'lecture' && i.active == 1) { emit([i.sessionId, i.subject, i.text], i); } } } }"
+		},
+		"preparation_question_by_session_sorted": {
+			"map": "function(doc) { if (doc.type == 'question_sort') { for (var i in doc.sortOrder) { if (i.type == 'skill_question' && i.questionVariant == 'preparation') { emit([i.sessionId, i.subject, i.text], i); } } } }"
+		},
+		"preparation_question_by_session_sorted_for_all": {
+			"map": "function(doc) { if (doc.type == 'question_sort') { for (var i in doc.sortOrder) { if (i.type == 'skill_question' && i.questionVariant == 'preparation' && i.active == 1) { emit([i.sessionId, i.subject, i.text], i); } } } }"
 		}
 	}
 }
