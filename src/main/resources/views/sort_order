@@ -2,29 +2,11 @@
 	"_id": "_design/sort_order",
 	"language": "javascript",
 	"views": {
-		"lecture_question_sort_order_by_sessionid": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'lecture') { emit(doc.sessionId, doc.order ); } }"
-		},
-		"preparation_question_sort_order_by_sessionid": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'preparation') { emit(doc.sessionId, doc); } }"
-		},
 		"lecture_question_sort_order_by_session_and_subject": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.subject], doc.order ); } }"
+			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.subject], doc); } }"
 		},
 		"preparation_question_sort_order_by_sessionid_and_subject": {
 			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'preparation') { emit([doc.sessionId, doc.subject], doc); } }"
-		},
-		"lecture_question_by_sessionid_sorted": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'lecture') { emit(doc.sessionId, null ) { for (var i in doc.order) { if (i.type == 'skill_question' && i.questionVariant == 'lecture') { emit([i.sessionId, i.subject, i.text], i); } } } } }"
-		},
-		"lecture_question_by_sessionid_sorted_for_all": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'lecture') { emit(doc.sessionId, null ) { for (var i in doc.order) { if (i.type == 'skill_question' && i.questionVariant == 'lecture' && i.active == 1) { emit([i.sessionId, i.subject, i.text], i); } } } } }"
-		},
-		"preparation_question_by_sessionid_sorted": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'preparation') { emit(doc.sessionId, null ) { for (var i in doc.order) { if (i.type == 'skill_question' && i.questionVariant == 'preparation') { emit([i.sessionId, i.subject, i.text], i); } } } } }"
-		},
-		"preparation_question_by_sessionid_sorted_for_all": {
-			"map": "function(doc) { if (doc.type == 'sort_order' && doc.questionVariant == 'preparation') { emit(doc.sessionId, null ) { for (var i in doc.order) { if (i.type == 'skill_question' && i.questionVariant == 'preparation' && i.active == 1) { emit([i.sessionId, i.subject, i.text], i); } } } } }"
 		}
 	}
 }
