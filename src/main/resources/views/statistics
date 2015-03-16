@@ -9,6 +9,10 @@
 		"unique_session_creators":{
 			"map":"function(doc) { if (doc.type === 'session') { emit(doc.creator, 1); } }",
 			"reduce":"_count"
+		},
+		"active_student_users":{
+			"map":"function(doc) { if (doc.type === 'skill_question_answer') { emit(doc.user, 1); } }",
+			"reduce":"_count"
 		}
 	}
 }
