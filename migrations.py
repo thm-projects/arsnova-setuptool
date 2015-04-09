@@ -145,6 +145,31 @@ def migrate(migration):
         print bump(current_version)
 
     if current_version == 6:
+        print "Transforming pre-picture-answer freetext questions into text only questions (#15613)..."
+        def add_text_answer_to_freetext_questions():
+            old_freetext_qs = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question' && doc.questionType == 'freetext' && typeof doc.textAnswerEnabled === 'undefined') emit(doc._id); }\" }"
+
+            # get all bug-affected documents
+            res = conn.temp_view_with_params(db_url, "?include_docs=true", old_freetext_qs)
+            doc = json.loads(res.read())
+            questions = []
+            for result in doc["rows"]:
+                questions.append(result["doc"])
+            # add missing properties
+            for question in questions:
+                question["imageQuestion"] = False
+                question["textAnswerEnabled"] = True
+            # bulk update the documents
+            res = conn.json_post(bulk_url, json.dumps({"docs":questions}))
+            result_docs = json.loads(res.read())
+            print result_docs
+
+        add_text_answer_to_freetext_questions()
+        # bump database version
+        current_version = 7
+        print bump(current_version)
+
+    if current_version == 7:
         # Next migration goes here
         pass
 
