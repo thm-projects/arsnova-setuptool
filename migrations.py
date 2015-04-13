@@ -170,6 +170,31 @@ def migrate(migration):
         print bump(current_version)
 
     if current_version == 7:
+        print "Transforming session documents to new learning progress options format (#15617)..."
+        def change_learning_progress_property_on_session():
+            sessions = "{ \"map\": \"function(doc) { if (doc.type == 'session' && doc.learningProgressType) emit(doc._id); }\" }"
+
+            res = conn.temp_view_with_params(db_url, "?include_docs=true", sessions)
+            doc = json.loads(res.read())
+            sessions = []
+            for result in doc["rows"]:
+                sessions.append(result["doc"])
+            # change property 'learningProgressType' to 'learningProgressOptions'
+            for session in sessions:
+                currentProgressType = session.pop("learningProgressType", "questions")
+                progressOptions = { "type": currentProgressType, "questionVariant": "" }
+                session["learningProgressOptions"] = progressOptions
+            # bulk update sessions
+            res = conn.json_post(bulk_url, json.dumps({"docs":sessions}))
+            result_docs = json.loads(res.read())
+            print result_docs
+
+        change_learning_progress_property_on_session()
+        # bump database version
+        current_version = 8
+        print bump(current_version)
+
+    if current_version == 8:
         # Next migration goes here
         pass
 
