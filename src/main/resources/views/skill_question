@@ -45,9 +45,17 @@
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound, doc.answerText], 1); }}",
 			"reduce": "_sum"
 		},
+		"count_all_answers_by_question": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText], 1); }}",
+			"reduce": "_sum"
+		},
 		"count_total_answers_by_question_and_piround": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound], 1); }}",
 			"reduce": "_sum"
+		},
+		"count_total_answers_by_question": {
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); }}",
+			"reduce": "_count"
 		},
 		"count_abstention_answers_by_question": {
 			"map": "function(doc) { if (doc.type == 'skill_question_answer' && doc.abstention) { emit(doc.questionId, doc); } }",
