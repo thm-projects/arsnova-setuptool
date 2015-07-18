@@ -62,7 +62,7 @@
 			"reduce": "_count"
 		},
 		"freetext_answers_full": {
-			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc); } }"
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.timestamp], doc); } }"
 		},
 		"by_session_only_id_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.active == 1) { emit(doc.sessionId, null); }}"
