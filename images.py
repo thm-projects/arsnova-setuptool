@@ -58,8 +58,24 @@ def load_image_metadata():
 	return json.loads(res.read())
 
 def dump_images(doc, target_dir):
+	# Fix 'incorrect padding' error, see http://stackoverflow.com/a/9807138
+	def decode_base64(data):
+		"""Decode base64, padding being optional.
+
+		:param data: Base64 data as an ASCII byte string
+		:returns: The decoded byte string.
+
+		"""
+		missing_padding = 4 - len(data) % 4
+		if missing_padding:
+			data += b'='* missing_padding
+			return base64.decodestring(data)
+
 	def extract_image_data(str):
 		content = str.split(",", 1)
+		if len(content) < 2:
+			return (None, None)
+
 		header = content[0]
 		data = content[1]
 
@@ -79,7 +95,7 @@ def dump_images(doc, target_dir):
 				continue
 			elif entry.startswith("base64"):
 				continue
-			else:
+			elif len(entry) > 0:
 				mimetype = entry
 
 		extension = mimetype.split("/")[1]
@@ -125,8 +141,9 @@ def dump_images(doc, target_dir):
 		filename = os.path.join(temp_dir, f)
 		with open(filename, "r") as img:
 			(image_data, extension) = extract_image_data(img.read())
-			with open(img.name + "." + extension, "wb") as img_bin:
-				img_bin.write(base64.b64decode(image_data))
+			if extension:
+				with open(img.name + "." + extension, "wb") as img_bin:
+					img_bin.write(decode_base64(image_data))
 		os.remove(filename)
 
 	shutil.move(temp_dir, target_dir)
