@@ -23,7 +23,7 @@ def load_image_metadata():
 			var propertyNames = [];
 
 			function pushImage(property) {
-				if (doc[property]) {
+				if (doc[property] && doc[property].indexOf('http') !== 0) {
 					propertyNames.push(property);
 				}
 			}
