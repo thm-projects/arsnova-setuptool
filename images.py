@@ -59,14 +59,30 @@ def load_image_metadata():
 
 def dump_images(doc, target_dir):
 	def extract_image_data(str):
-		data_prefix = "data:image/"
-		data_suffix = ";base64,"
-		prefix_end = str.find(data_prefix) + len(data_prefix)
-		suffix_start = str.find(data_suffix)
-		suffix_end = suffix_start + len(data_suffix)
+		content = str.split(",", 1)
+		header = content[0]
+		data = content[1]
 
-		extension = str[prefix_end:suffix_start]
-		data = str[suffix_end:]
+		data_prefix = "data:"
+		prefix_end = header.find(data_prefix) + len(data_prefix)
+
+		clean_header = header[prefix_end:]
+		# format will be "[mime type][;charset=<charset>][;base64]"
+		# note that all entries are optional!
+		header_entries = clean_header.split(";")
+
+		# Assume sane defaults
+		mimetype = "image/jpeg"
+		encoding = "base64"
+		for entry in header_entries:
+			if entry.startswith("charset"):
+				continue
+			elif entry.startswith("base64"):
+				continue
+			else:
+				mimetype = entry
+
+		extension = mimetype.split("/")[1]
 		return (data, extension)
 
 	target_dir = os.path.abspath(target_dir)
