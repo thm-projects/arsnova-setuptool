@@ -15,7 +15,7 @@
 			"map":"function(doc) { if(doc.type == 'session' && doc.courseId  && doc.sessionType != 'public_pool') emit(doc.courseId, doc); }"
 		},
 		"public_pool_by_subject":{
-			"map":"function(doc) { if(doc.sessionType == 'public_pool') emit(doc.ppSubject, {ppSubject: doc.ppSubject,name: doc.name, keyword: doc.keyword, ppLevel: doc.ppLevel}); }"
+			"map":"function(doc) { if(doc.sessionType == 'public_pool') emit([doc.ppSubject, doc.name], {ppSubject: doc.ppSubject,name: doc.name, keyword: doc.keyword, ppLevel: doc.ppLevel}); }"
 		},
 		"public_pool_by_creator":{
 			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType == 'public_pool') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
