@@ -1,0 +1,12 @@
+{
+	"_id":"_design/motd",
+	"language":"javascript",
+	"views":{
+    "all":{
+      "map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
+    },
+		"by_keyword":{
+			"map":"function(doc) { if (doc.type == 'motd') { emit(doc.motdkey, doc); }}"
+		}
+	}
+}
