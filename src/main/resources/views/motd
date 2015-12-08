@@ -5,6 +5,15 @@
     "all":{
       "map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
     },
+		"for_students":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'student') { emit(1, doc);}}"
+		},
+		"for_tutors":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'tutor') { emit(1, doc);}}"
+		},
+		"for_all":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'all') { emit(1, doc);}}"
+		},
 		"by_keyword":{
 			"map":"function(doc) { if (doc.type == 'motd') { emit(doc.motdkey, doc); }}"
 		}
