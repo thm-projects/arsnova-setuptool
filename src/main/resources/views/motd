@@ -6,10 +6,10 @@
       "map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
     },
 		"for_students":{
-			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'student') { emit(1, doc);}}"
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'students') { emit(1, doc);}}"
 		},
 		"for_tutors":{
-			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'tutor') { emit(1, doc);}}"
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'tutors') { emit(1, doc);}}"
 		},
 		"for_all":{
 			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'all') { emit(1, doc);}}"
