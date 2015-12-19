@@ -14,6 +14,9 @@
 		"for_all":{
 			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'all') { emit(1, doc);}}"
 		},
+		"for_loggedin":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'loggedIn') { emit(1, doc);}}"
+		},
 		"by_keyword":{
 			"map":"function(doc) { if (doc.type == 'motd') { emit(doc.motdkey, doc); }}"
 		},
