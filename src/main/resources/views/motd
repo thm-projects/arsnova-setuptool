@@ -3,8 +3,11 @@
 	"language":"javascript",
 	"views":{
     "all":{
-      "map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
+			"map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
     },
+		"admin":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience != 'session') { emit(1, doc);}}"
+		},
 		"for_students":{
 			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'students') { emit(1, doc);}}"
 		},
@@ -16,6 +19,9 @@
 		},
 		"for_loggedin":{
 			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'loggedIn') { emit(1, doc);}}"
+		},
+		"by_sessionkey":{
+			"map":"function(doc) { if (doc.type == 'motd' && doc.audience == 'session') { emit(doc.sessionkey, doc);}}"
 		},
 		"by_keyword":{
 			"map":"function(doc) { if (doc.type == 'motd') { emit(doc.motdkey, doc); }}"
