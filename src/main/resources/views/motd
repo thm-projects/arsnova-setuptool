@@ -2,9 +2,9 @@
 	"_id":"_design/motd",
 	"language":"javascript",
 	"views":{
-    "all":{
+    		"all":{
 			"map":"function(doc) { if (doc.type == 'motd') { emit(1, doc);}}"
-    },
+		},
 		"admin":{
 			"map":"function(doc) { if (doc.type == 'motd' && doc.audience != 'session') { emit(1, doc);}}"
 		},
