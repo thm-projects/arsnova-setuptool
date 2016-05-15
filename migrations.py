@@ -1,5 +1,6 @@
 import couchconnection
 import json
+import re
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
@@ -195,6 +196,85 @@ def migrate(migration):
         print bump(current_version)
 
     if current_version == 8:
+        print "Migrating DB and LDAP user IDs to lowercase..."
+        conn.request("GET", db_url + "/_design/user/_view/all")
+        res = conn.getresponse()
+        doc = json.loads(res.read())
+        affected_users = {}
+        unaffected_users = []
+        bulk_docs = []
+
+        # Look for user documents where user ID is not in lowercase
+        #   1) Delete document if account has not been activated
+        #   2) Lock account if a lowercase version already exists
+        #   3) Convert user ID to lowercase if only one captitalization exists
+        for user_doc in doc["rows"]:
+            if user_doc["key"] != user_doc["key"].lower():
+                # create a list of user documents since there might be multiple
+                # items for different captitalizations
+                affected_users.setdefault(user_doc["key"].lower(), []).append(user_doc["value"])
+            else:
+                unaffected_users.append(user_doc["key"])
+        for uid, users in affected_users.iteritems():
+            migration_targets = []
+            for user in users:
+                if "activationKey" in user:
+                    print "User %s has not been activated. Deleting document %s..." % (user["username"], user["_id"])
+                    conn.delete(db_url + "/" + user["_id"])
+                elif uid in unaffected_users:
+                    print "Migration target exists. Locking duplicate user %s (document %s)..." % (user["username"], user["_id"])
+                    user["locked"] = True
+                    bulk_docs.append(user)
+                else:
+                    migration_targets.append(user)
+            if len(migration_targets) > 1:
+                print "Cannot migrate some users automatically. Conflicting duplicate users found:"
+                for user in migration_targets:
+                    print "Locking user %s (document %s)..." % (user["username"], user["_id"])
+                    user["locked"] = True
+                    bulk_docs.append(user)
+            elif migration_targets:
+                print "Migrating user %s (document %s)..." % (user["username"], user["_id"])
+                user["username"] = uid
+                bulk_docs.append(user)
+
+        # Look for data where assigned user's ID is not in lowercase
+        #   1) Migrate if user ID was affected by previous migration step
+        #   2) Exclude Facebook and Google account IDs
+        #   3) Exclude guest account IDs
+        #   4) Migrate all remaining IDs (LDAP)
+        def reassign_data(type, user_prop):
+            print "Reassigning %s data to migrated users..." % type
+            migration_view = "{ \"map\": \"function(doc) { function check(doc, type, uid) { return doc.type === type && uid !== uid.toLowerCase() && uid.indexOf('Guest') !== 0; } if (check(doc, '%s', doc.%s)) { emit(doc._id, doc); }}\" }" % (type, user_prop)
+            res = conn.temp_view(db_url, migration_view)
+            doc = json.loads(res.read())
+            print "Documents: %d" % len(doc["rows"])
+            for affected_doc in doc["rows"]:
+                val = affected_doc["value"]
+                print affected_doc["id"], val[user_prop]
+                # exclude Facebook and Google accounts from migration (might be
+                # redundant)
+                if (not re.match("https?:", val[user_prop]) and not "@" in val[user_prop]) or val[user_prop].lower() in affected_users:
+                    val[user_prop] = val[user_prop].lower()
+                    bulk_docs.append(val)
+                else:
+                    print "Skipped %s (Facebook/Google account)" % val[user_prop]
+
+        reassign_data("session", "creator")
+        reassign_data("interposed_question", "creator")
+        reassign_data("skill_question_answer", "user")
+        reassign_data("logged_in", "user")
+        reassign_data("motdlist", "username")
+
+        # bulk update users and assignments
+        res = conn.json_post(bulk_url, json.dumps({"docs": bulk_docs}))
+        if res:
+            res.read()
+            # bump database version
+            current_version = 9
+            print bump(current_version)
+
+    if current_version == 9:
         # Next migration goes here
         pass
 
