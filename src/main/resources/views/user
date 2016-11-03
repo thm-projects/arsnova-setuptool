@@ -4,6 +4,9 @@
 	"views":{
 		"all":{
 			"map":"function(doc) { if (doc.type == 'userdetails') emit(doc.username, doc); }"
+		},
+		"inactive_by_creation": {
+			"map": "function(doc) {\n  if (doc.type == 'userdetails' && doc.activationKey) {\n    emit(doc.creation, {_rev: doc._rev});\n  }\n}"
 		}
 	}
 }
