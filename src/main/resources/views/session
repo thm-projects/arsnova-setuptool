@@ -19,6 +19,9 @@
 		},
 		"public_pool_by_creator":{
 			"map":"function(doc) { if(doc.type == 'session' && doc.sessionType == 'public_pool') emit([doc.creator, doc.name], {shortName: doc.shortName, keyword: doc.keyword, active: doc.active, courseType: doc.courseType, creationTime: doc.creationTime}); }"
+		},
+		"related_data": {
+		  "map": "function (doc) {\n  switch (doc.type) {\n  case 'interposed_question':\n  case 'skill_question':\n  case 'skill_question_answer':\n    emit(doc.sessionId, {_rev: doc._rev});\n    break;\n  case 'motd':\n    if (doc.audience === 'session') {\n      /* Refactoring of MotD document structure required */\n      // emit(doc.sessionId, {_rev: doc._rev});\n    }\n    break;\n  }\n}"
 		}
 	}
 }
