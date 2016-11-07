@@ -14,6 +14,9 @@
 		"by_courseid":{
 			"map":"function(doc) { if(doc.type == 'session' && doc.courseId  && doc.sessionType != 'public_pool') emit(doc.courseId, doc); }"
 		},
+		"by_last_activity_for_guests": {
+			"map":"function(doc) {\n  if (doc.type === 'session' && doc.sessionType !== 'public_pool' && doc.creator.indexOf('Guest') === 0) {\n    emit(doc.lastOwnerActivity || doc.creationTime, {_rev: doc._rev});\n  }\n}"
+		},
 		"public_pool_by_subject":{
 			"map":"function(doc) { if(doc.sessionType == 'public_pool') emit([doc.ppSubject, doc.name], {ppSubject: doc.ppSubject,name: doc.name, keyword: doc.keyword, ppLevel: doc.ppLevel}); }"
 		},
