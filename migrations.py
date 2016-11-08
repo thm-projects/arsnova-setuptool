@@ -1,6 +1,7 @@
 import couchconnection
 import json
 import re
+import urllib
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
@@ -275,6 +276,33 @@ def migrate(migration):
             print bump(current_version)
 
     if current_version == 9:
+        print "Migrating MotD documents..."
+        migration_view = "{ \"map\": \"function(doc) { if (doc.type === 'motd' && doc.audience === 'session' && !doc.sessionId) { emit(null, doc); } }\" }"
+        res = conn.temp_view(db_url, migration_view)
+        docs = json.loads(res.read())
+        print "Documents: %d" % len(docs["rows"])
+        bulk_docs = []
+        for affected_doc in docs["rows"]:
+            val = affected_doc["value"]
+            print affected_doc["id"], val["motdkey"]
+            conn.request("GET", db_url + "/_design/session/_view/by_keyword?key=" + '"%s"' % val["sessionkey"])
+            session_res = conn.getresponse()
+            session_docs = json.loads(session_res.read())
+            if len(session_docs["rows"]) > 0:
+                val["sessionId"] = session_docs["rows"][0]["id"]
+                bulk_docs.append(val)
+            else:
+                print "No session document found for " + val["sessionkey"]
+
+        # bulk update MotDs
+        res = conn.json_post(bulk_url, json.dumps({"docs": bulk_docs}))
+        if res:
+            res.read()
+            # bump database version
+            current_version = 10
+            print bump(current_version)
+
+    if current_version == 10:
         # Next migration goes here
         pass
 
