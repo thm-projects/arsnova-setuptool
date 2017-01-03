@@ -303,6 +303,12 @@ def migrate(migration):
             print bump(current_version)
 
     if current_version == 10:
+        print "Deleting 'sort_order' design document..."
+        if not conn.delete(db_url + "/_design/sort_order"):
+            print "'sort_order' design document not found"
+        print bump(current_version)
+
+    if current_version == 11:
         # Next migration goes here
         pass
 
