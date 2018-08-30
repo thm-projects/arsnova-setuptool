@@ -46,7 +46,7 @@
 			"reduce": "_sum"
 		},
 		"count_all_answers_by_question": {
-			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText, doc.answerSubject, doc.successfulFreeTextAnswer], 1); }}",
+			"map": "function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.answerText, doc.answerSubject, !!doc.successfulFreeTextAnswer], 1); }}",
 			"reduce": "_sum"
 		},
 		"count_total_answers_by_question_and_piround": {
