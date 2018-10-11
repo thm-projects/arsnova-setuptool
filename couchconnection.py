@@ -1,8 +1,7 @@
 import httplib
 import base64
-import ConfigParser
-import io
 import json
+import configreader
 
 class CouchConnection(httplib.HTTPConnection):
     """docstring for CouchConnection"""
@@ -58,15 +57,5 @@ class CouchConnection(httplib.HTTPConnection):
 
 
 def arsnova_connection(propertypath):
-    f = open(propertypath, "r")
-    properties = f.read()
-    f.close()
-
-    config = ConfigParser.RawConfigParser()
-    config.readfp(io.BytesIO("[arsnova]" + properties))
-    host = config.get("arsnova", "couchdb.host")
-    port = config.get("arsnova", "couchdb.port")
-    db = config.get("arsnova", "couchdb.name")
-    username = config.get("arsnova", "couchdb.username")
-    password = config.get("arsnova", "couchdb.password")
-    return (db, CouchConnection(host, port, username, password))
+    config = configreader.ConfigReader(propertypath)
+    return (config.dbName, CouchConnection(config.host, config.port, config.username, config.password))
