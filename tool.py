@@ -56,7 +56,8 @@ def view_process(conn, db, view):
 		if not view_update(conn, view_url, open(view, "r")):
 			print "... update FAILED!"
 
-viewpath = "src/main/resources/views"
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+viewpath = scriptpath + "/src/main/resources/views"
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 try:
