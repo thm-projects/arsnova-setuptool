@@ -9,7 +9,7 @@
 			"map": "function(doc) { if(doc.type == 'logged_in') { emit(doc.user, doc.visitedSessions); }}"
 		},
 		"by_last_activity": {
-			"map": "function(doc) {\n  if (doc.type == 'logged_in') {\n    emit(doc.timestamp || 0, null);\n  }\n}"
+			"map": "function(doc) {\n  if (doc.type == 'logged_in' && !doc.anonymized) {\n    emit(doc.timestamp || 0, null);\n  }\n}"
 		},
 		"by_last_activity_for_guests": {
 			"map": "function(doc) {\n  if (doc.type == 'logged_in' && doc.user.indexOf('Guest') === 0) {\n    emit(doc.timestamp || 0, {_rev: doc._rev});\n  }\n}"
