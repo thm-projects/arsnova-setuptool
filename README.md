@@ -21,6 +21,9 @@ you also need to run the data migration script:
 
 *Note:* These scripts require Python 2. `migrations.py` does not support CouchDB 2.x.
 If you still need to run data migrations, make sure to do so before updating CouchDB.
+On larger installations, ARSnova might respond with timeout errors when accessed for the first time after running those scripts.
+Just give the database system a few minutes to create the updated views in the background in this case.
+
 
 ## Credits
 
