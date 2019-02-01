@@ -84,21 +84,6 @@
 		},
 		"lecture_question_ids_by_session_for_all": {
 			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture' && doc.active == 1) { emit([doc.sessionId, doc.subject, doc.text], {}); }}"
-		},
-		"lecture_question_subjects_by_session": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture') { emit(doc.sessionId, doc.subject); }}"
-		},
-		"preparation_question_subjects_by_session": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation') { emit(doc.sessionId, doc.subject); }}"
-		},
-		"lecture_question_ids_by_session_and_subject": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'lecture') { emit([doc.sessionId, doc.subject], doc._id); }}"
-		},
-		"preparation_question_ids_by_session_and_subject": {
-			"map": "function(doc) { if (doc.type == 'skill_question' && doc.questionVariant == 'preparation') { emit([doc.sessionId, doc.subject], doc._id); }}"
-		},
-		"questions_by_ids":{
-			"map":"function(doc) { if (doc.type == 'skill_question') { emit(doc._id, doc); }}"
 		}
 	}
 }
