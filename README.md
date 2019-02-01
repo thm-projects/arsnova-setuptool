@@ -38,7 +38,7 @@ Our official build status provided by Travis CI:
 
 To create the database and to install or update the views, simply run:
 
-	python tool.py
+	./tool.py
 
 *Note:* This tool requires Python 2. Windows users have to make additional changes to the path used in file `tool.py`.
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import couchconnection, json
 import sys
 import socket
