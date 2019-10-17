@@ -17,7 +17,7 @@ class ConfigReader:
         f.close()
 
         config = ConfigParser.RawConfigParser()
-        config.readfp(io.BytesIO("[arsnova]" + properties))
+        config.readfp(io.BytesIO("[arsnova]\n" + properties))
         self.host = config.get("arsnova", "couchdb.host")
         self.port = config.get("arsnova", "couchdb.port")
         self.dbName = config.get("arsnova", "couchdb.name")
