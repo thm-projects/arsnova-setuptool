@@ -19,6 +19,9 @@
 		},
 		"cleanup":{
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc._id); }}"
+		},
+		"by_questionid_piround":{
+			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound], doc); }}"
 		}
 	}
 }
