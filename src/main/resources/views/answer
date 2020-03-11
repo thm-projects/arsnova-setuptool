@@ -21,7 +21,7 @@
 			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit(doc.questionId, doc._id); }}"
 		},
 		"by_questionid_piround":{
-			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound], doc); }}"
+			"map":"function(doc) { if (doc.type == 'skill_question_answer') { emit([doc.questionId, doc.piRound], { answerText: doc.answerText, user: doc.user }); }}"
 		}
 	}
 }
