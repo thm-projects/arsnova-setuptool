@@ -2,7 +2,7 @@
 import couchconnection
 import json
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
@@ -48,7 +48,7 @@ def migrate(migration):
                     ds = []
                     for col in doc["rows"]:
                         val = col["value"]
-                        if not val.has_key("questionVariant"):
+                        if "questionVariant" not in val:
                             ds.append(val)
                     for d in ds:
                         d["questionVariant"] = "lecture"
@@ -56,42 +56,42 @@ def migrate(migration):
                     result_docs = json.loads(res.read())
                     errors = []
                     for result in result_docs:
-                        if result.has_key("error"):
+                        if "error" in result:
                             errors.append(result)
                     if not errors:
                         # All documents were migrated.
                         # jump out of loop and exit this function
                         break
-            print "Migrating all Question documents..."
+            print("Migrating all Question documents...")
             migrate_with_temp_view(questions)
-            print "Migrating all Answer documents..."
+            print("Migrating all Answer documents...")
             migrate_with_temp_view(answers)
 
         # skill_question
         question_migration()
         # bump database version
         current_version = 1
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 1:
-        print "Deleting obsolete food vote design document..."
+        print("Deleting obsolete food vote design document...")
         if not conn.delete(db_url + "/_design/food_vote"):
-            print "Food vote design document not found"
+            print("Food vote design document not found")
         # bump database version
         current_version = 2
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 2:
-      print "Deleting obsolete user ranking, understanding, and admin design documents..."
+      print("Deleting obsolete user ranking, understanding, and admin design documents...")
       if not conn.delete(db_url + "/_design/user_ranking"):
-          print "User ranking design document not found"
+          print("User ranking design document not found")
       if not conn.delete(db_url + "/_design/understanding"):
-          print "Understanding design document not found"
+          print("Understanding design document not found")
       if not conn.delete(db_url + "/_design/admin"):
-          print "Admin design document not found"
+          print("Admin design document not found")
       # bump database version
       current_version = 3
-      print bump(current_version)
+      print(bump(current_version))
 
     if current_version == 3:
         def add_variant_to_freetext_abstention_answers():
@@ -119,36 +119,36 @@ def migrate(migration):
             # bulk update the answers
             res = conn.json_post(bulk_url, json.dumps({"docs":answers}))
             result_docs = json.loads(res.read())
-            print result_docs
+            print(result_docs)
 
-        print "Fixing freetext answers (abstentions) with missing question variant (#13313)..."
+        print("Fixing freetext answers (abstentions) with missing question variant (#13313)...")
         add_variant_to_freetext_abstention_answers()
         # bump database version
         current_version = 4;
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 4:
-        print "Deleting obsolete learning_progress design documents..."
+        print("Deleting obsolete learning_progress design documents...")
         if not conn.delete(db_url + "/_design/learning_progress_course_answers"):
-            print "course_answers design document not found"
+            print("course_answers design document not found")
         if not conn.delete(db_url + "/_design/learning_progress_maximum_value"):
-            print "maximum_value design document not found"
+            print("maximum_value design document not found")
         if not conn.delete(db_url + "/_design/learning_progress_user_values"):
-            print "learning_progress_user_values design document not found"
+            print("learning_progress_user_values design document not found")
         # bump database version
         current_version = 5
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 5:
-        print "Deleting misspelled 'statistic' design document..."
+        print("Deleting misspelled 'statistic' design document...")
         if not conn.delete(db_url + "/_design/statistic"):
-            print "'statistic' design document not found"
+            print("'statistic' design document not found")
         # bump database version
         current_version = 6
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 6:
-        print "Transforming pre-picture-answer freetext questions into text only questions (#15613)..."
+        print("Transforming pre-picture-answer freetext questions into text only questions (#15613)...")
         def add_text_answer_to_freetext_questions():
             old_freetext_qs = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question' && doc.questionType == 'freetext' && typeof doc.textAnswerEnabled === 'undefined') emit(doc._id); }\" }"
 
@@ -165,15 +165,15 @@ def migrate(migration):
             # bulk update the documents
             res = conn.json_post(bulk_url, json.dumps({"docs":questions}))
             result_docs = json.loads(res.read())
-            print result_docs
+            print(result_docs)
 
         add_text_answer_to_freetext_questions()
         # bump database version
         current_version = 7
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 7:
-        print "Transforming session documents to new learning progress options format (#15617)..."
+        print("Transforming session documents to new learning progress options format (#15617)...")
         def change_learning_progress_property_on_session():
             sessions = "{ \"map\": \"function(doc) { if (doc.type == 'session' && doc.learningProgressType) emit(doc._id); }\" }"
 
@@ -190,15 +190,15 @@ def migrate(migration):
             # bulk update sessions
             res = conn.json_post(bulk_url, json.dumps({"docs":sessions}))
             result_docs = json.loads(res.read())
-            print result_docs
+            print(result_docs)
 
         change_learning_progress_property_on_session()
         # bump database version
         current_version = 8
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 8:
-        print "Migrating DB and LDAP user IDs to lowercase..."
+        print("Migrating DB and LDAP user IDs to lowercase...")
         conn.request("GET", db_url + "/_design/user/_view/all")
         res = conn.getresponse()
         doc = json.loads(res.read())
@@ -217,26 +217,26 @@ def migrate(migration):
                 affected_users.setdefault(user_doc["key"].lower(), []).append(user_doc["value"])
             else:
                 unaffected_users.append(user_doc["key"])
-        for uid, users in affected_users.iteritems():
+        for uid, users in affected_users.items():
             migration_targets = []
             for user in users:
                 if "activationKey" in user:
-                    print "User %s has not been activated. Deleting document %s..." % (user["username"], user["_id"])
+                    print("User %s has not been activated. Deleting document %s..." % (user["username"], user["_id"]))
                     conn.delete(db_url + "/" + user["_id"])
                 elif uid in unaffected_users:
-                    print "Migration target exists. Locking duplicate user %s (document %s)..." % (user["username"], user["_id"])
+                    print("Migration target exists. Locking duplicate user %s (document %s)..." % (user["username"], user["_id"]))
                     user["locked"] = True
                     bulk_docs.append(user)
                 else:
                     migration_targets.append(user)
             if len(migration_targets) > 1:
-                print "Cannot migrate some users automatically. Conflicting duplicate users found:"
+                print("Cannot migrate some users automatically. Conflicting duplicate users found:")
                 for user in migration_targets:
-                    print "Locking user %s (document %s)..." % (user["username"], user["_id"])
+                    print("Locking user %s (document %s)..." % (user["username"], user["_id"]))
                     user["locked"] = True
                     bulk_docs.append(user)
             elif migration_targets:
-                print "Migrating user %s (document %s)..." % (user["username"], user["_id"])
+                print("Migrating user %s (document %s)..." % (user["username"], user["_id"]))
                 user["username"] = uid
                 bulk_docs.append(user)
 
@@ -246,21 +246,21 @@ def migrate(migration):
         #   3) Exclude guest account IDs
         #   4) Migrate all remaining IDs (LDAP)
         def reassign_data(type, user_prop):
-            print "Reassigning %s data to migrated users..." % type
+            print("Reassigning %s data to migrated users..." % type)
             migration_view = "{ \"map\": \"function(doc) { function check(doc, type, uid) { return doc.type === type && uid !== uid.toLowerCase() && uid.indexOf('Guest') !== 0; } if (check(doc, '%s', doc.%s)) { emit(doc._id, doc); }}\" }" % (type, user_prop)
             res = conn.temp_view(db_url, migration_view)
             doc = json.loads(res.read())
-            print "Documents: %d" % len(doc["rows"])
+            print("Documents: %d" % len(doc["rows"]))
             for affected_doc in doc["rows"]:
                 val = affected_doc["value"]
-                print affected_doc["id"], val[user_prop]
+                print(affected_doc["id"], val[user_prop])
                 # exclude Facebook and Google accounts from migration (might be
                 # redundant)
                 if (not re.match("https?:", val[user_prop]) and not "@" in val[user_prop]) or val[user_prop].lower() in affected_users:
                     val[user_prop] = val[user_prop].lower()
                     bulk_docs.append(val)
                 else:
-                    print "Skipped %s (Facebook/Google account)" % val[user_prop]
+                    print("Skipped %s (Facebook/Google account)" % val[user_prop])
 
         reassign_data("session", "creator")
         reassign_data("interposed_question", "creator")
@@ -274,18 +274,18 @@ def migrate(migration):
             res.read()
             # bump database version
             current_version = 9
-            print bump(current_version)
+            print(bump(current_version))
 
     if current_version == 9:
-        print "Migrating MotD documents..."
+        print("Migrating MotD documents...")
         migration_view = "{ \"map\": \"function(doc) { if (doc.type === 'motd' && doc.audience === 'session' && !doc.sessionId) { emit(null, doc); } }\" }"
         res = conn.temp_view(db_url, migration_view)
         docs = json.loads(res.read())
-        print "Documents: %d" % len(docs["rows"])
+        print("Documents: %d" % len(docs["rows"]))
         bulk_docs = []
         for affected_doc in docs["rows"]:
             val = affected_doc["value"]
-            print affected_doc["id"], val["motdkey"]
+            print(affected_doc["id"], val["motdkey"])
             conn.request("GET", db_url + "/_design/session/_view/by_keyword?key=" + '"%s"' % val["sessionkey"])
             session_res = conn.getresponse()
             session_docs = json.loads(session_res.read())
@@ -293,7 +293,7 @@ def migrate(migration):
                 val["sessionId"] = session_docs["rows"][0]["id"]
                 bulk_docs.append(val)
             else:
-                print "No session document found for " + val["sessionkey"]
+                print("No session document found for " + val["sessionkey"])
 
         # bulk update MotDs
         res = conn.json_post(bulk_url, json.dumps({"docs": bulk_docs}))
@@ -301,15 +301,15 @@ def migrate(migration):
             res.read()
             # bump database version
             current_version = 10
-            print bump(current_version)
+            print(bump(current_version))
 
     if current_version == 10:
-        print "Deleting 'sort_order' design document..."
+        print("Deleting 'sort_order' design document...")
         if not conn.delete(db_url + "/_design/sort_order"):
-            print "'sort_order' design document not found"
+            print("'sort_order' design document not found")
         # bump database version
         current_version = 11
-        print bump(current_version)
+        print(bump(current_version))
 
     if current_version == 11:
         # Next migration goes here

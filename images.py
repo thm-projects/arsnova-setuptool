@@ -104,7 +104,7 @@ def dump_images(doc, target_dir):
 
 	target_dir = os.path.abspath(target_dir)
 	if os.path.exists(target_dir):
-		print "Error: Target directory already exists."
+		print("Error: Target directory already exists.")
 		sys.exit()
 
 	# Which properties of which documents should we examine?
@@ -129,7 +129,7 @@ def dump_images(doc, target_dir):
 	# dump the images
 	temp_dir = tempfile.mkdtemp(prefix = "image_dump_couchdb_")
 	(temp_dir_path, temp_dir_name) = os.path.split(temp_dir)
-	for (k, v) in image_data.iteritems():
+	for (k, v) in image_data.items():
 		for vi in v:
 			filename = k + "." + vi["name"] + ".img"
 			fullpath = os.path.join(temp_dir, filename)
@@ -167,7 +167,7 @@ for col in doc["rows"]:
 	total_size += val["totalSizeInBytes"]
 	document_ids.append(col["id"].encode('utf8'))
 
-print """
+print("""
 List of documents containing images:
 %(document_list)s
 
@@ -175,4 +175,4 @@ Summary:
 	documents: %(documents)d
 	images: %(images)d
 	total size (bytes): %(total_size)d
-""" % {"document_list": document_ids, "documents": documents, "images": images, "total_size": total_size}
+""" % {"document_list": document_ids, "documents": documents, "images": images, "total_size": total_size})

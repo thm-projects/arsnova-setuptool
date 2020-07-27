@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import io
 import os
 
@@ -16,7 +16,7 @@ class ConfigReader:
         properties = f.read()
         f.close()
 
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.readfp(io.BytesIO("[arsnova]\n" + properties))
         self.host = config.get("arsnova", "couchdb.host")
         self.port = config.get("arsnova", "couchdb.port")

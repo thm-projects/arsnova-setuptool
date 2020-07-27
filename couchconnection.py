@@ -1,12 +1,12 @@
-import httplib
+import http.client
 import base64
 import json
 import configreader
 
-class CouchConnection(httplib.HTTPConnection):
+class CouchConnection(http.client.HTTPConnection):
     """docstring for CouchConnection"""
     def __init__(self, host="127.0.0.1", port=5984, username="", password=""):
-        httplib.HTTPConnection.__init__(self, host, port)
+        http.client.HTTPConnection.__init__(self, host, port)
         self.username = username
         self.password = password
 
@@ -14,7 +14,7 @@ class CouchConnection(httplib.HTTPConnection):
         if self.username != "" and self.password != "":
             creds = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
             header["Authorization"] = "Basic %s" % creds
-        httplib.HTTPConnection.request(self, method, path, body, header)
+        http.client.HTTPConnection.request(self, method, path, body, header)
 
     def get(self, path, header={}):
         self.request("GET", path, "", header)
@@ -26,7 +26,7 @@ class CouchConnection(httplib.HTTPConnection):
 
     def json_post(self, path, body=None, header={}):
         h = { "Content-Type": "application/json" }
-        self.request("POST", path, body, dict(h.items() + header.items()))
+        self.request("POST", path, body, dict(list(h.items()) + list(header.items())))
         return self.getresponse()
 
     def put(self, path, body, header={}):
@@ -35,7 +35,7 @@ class CouchConnection(httplib.HTTPConnection):
 
     def json_put(self, path, body, header={}):
         h = { "Content-Type": "application/json" }
-        self.request("PUT", path, body, dict(h.items() + header.items()))
+        self.request("PUT", path, body, dict(list(h.items()) + list(header.items())))
         return self.getresponse()
 
     def delete(self, path, body=None, header={}):

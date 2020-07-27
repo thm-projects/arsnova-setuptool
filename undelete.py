@@ -40,4 +40,4 @@ for arg in sys.argv[1:]:
 
 			url = db_url + "/" + arg + "?rev=" + last_rev
 			res = conn.json_put(url, json.dumps(restored_doc))
-			print res.read()
+			print(res.read())
