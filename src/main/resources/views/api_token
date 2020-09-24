@@ -1,0 +1,12 @@
+{
+	"_id": "_design/api_token",
+	"language": "javascript",
+	"views": {
+		"by_username": {
+			"map": "function (doc) { if (doc.type === 'api_token') { emit(doc.username, {_rev: doc._rev}); } }"
+		},
+		"by_token": {
+			"map": "function (doc) { if (doc.type === 'api_token') { emit(doc.token, {_rev: doc._rev}); } }"
+		}
+    }
+}
