@@ -1,0 +1,9 @@
+{
+	"_id": "_design/all",
+	"language": "javascript",
+	"views": {
+		"by_sessionid_type": {
+			"map": "function (doc) {\n  var sessionId;\n  switch (doc.type) {\n    case 'session':\n      sessionId = doc._id;\n      break;\n    case 'interposed_question':\n    case 'skill_question':\n    case 'skill_question_answer':\n      sessionId = doc.sessionId;\n      break;\n    case 'motd':\n      if (doc.audience !== 'session') {\n        return;\n      }\n      sessionId = doc.sessionId;\n      break;\n    default:\n      return;\n  }\n  if (!sessionId) {\n    return;\n  }\n  emit([sessionId, doc.type], {_rev: doc._rev});\n}"
+		}
+	}
+}
