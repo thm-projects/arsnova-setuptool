@@ -4,14 +4,12 @@ import json
 import re
 import sys
 import urllib.request, urllib.parse, urllib.error
-
-LATEST_MIGRATION_VERSION = 11
+from constants import LATEST_MIGRATION_VERSION, MIGRATIONS_DOCUMENT_ID
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
-migrations_document_id = "arsnova_migrations"
 db_url = "/" + db
-migrations_url = db_url + "/" + migrations_document_id
+migrations_url = db_url + "/" + MIGRATIONS_DOCUMENT_ID
 
 def bump(next_version):
     conn.request("GET", migrations_url)
@@ -329,7 +327,7 @@ conn.request("GET", migrations_url)
 res = conn.getresponse()
 mig = res.read()
 if res.status == 404:
-    res = conn.json_post(db_url, json.dumps({"_id":migrations_document_id, "version":0}))
+    res = conn.json_post(db_url, json.dumps({"_id":MIGRATIONS_DOCUMENT_ID, "version":0}))
     res.read()
     migrate({"version":0})
 else:

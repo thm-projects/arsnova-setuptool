@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import couchconnection, json
+import couchconnection
+import json
 import sys
 import socket
 import os
+from constants import LATEST_MIGRATION_VERSION, MIGRATIONS_DOCUMENT_ID
 
 def database_exists(conn, db):
 	conn.request("HEAD", "/" + db)
@@ -15,6 +17,11 @@ def database_create(conn, db):
 	res = conn.getresponse()
 	res.read()
 	return res.status == 201
+
+def set_migration_version_to_latest(conn, db):
+	db_url = "/" + db
+	res = conn.json_post(db_url, json.dumps({"_id":MIGRATIONS_DOCUMENT_ID, "version":LATEST_MIGRATION_VERSION}))
+	res.read()
 
 def view_exists(conn, view_url):
 	conn.request("HEAD", view_url)
@@ -66,6 +73,8 @@ try:
 		print(("Creating database '" + db + "'..."))
 		if not database_create(conn, db):
 			print("... FAILED")
+		else:
+			set_migration_version_to_latest(conn, db)
 	else:
 		print(("Database '" + db + "' already exists."))
 
