@@ -1,6 +1,11 @@
-import ConfigParser
+import configparser
 import io
 import os
+import sys
+
+MIN_PYTHON_VERSION = (3, 2)
+if sys.version_info < MIN_PYTHON_VERSION:
+    sys.exit("Python %s.%s or later is required." % MIN_PYTHON_VERSION)
 
 class ConfigReader:
     def __init__(self, propertiesFile="/etc/arsnova/arsnova.properties"):
@@ -16,8 +21,8 @@ class ConfigReader:
         properties = f.read()
         f.close()
 
-        config = ConfigParser.RawConfigParser()
-        config.readfp(io.BytesIO("[arsnova]\n" + properties))
+        config = configparser.RawConfigParser()
+        config.read_string("[arsnova]\n" + properties)
         self.host = config.get("arsnova", "couchdb.host")
         self.port = config.get("arsnova", "couchdb.port")
         self.dbName = config.get("arsnova", "couchdb.name")
