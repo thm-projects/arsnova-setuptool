@@ -7,14 +7,17 @@ MIN_PYTHON_VERSION = (3, 2)
 if sys.version_info < MIN_PYTHON_VERSION:
     sys.exit("Python %s.%s or later is required." % MIN_PYTHON_VERSION)
 
+
 class ConfigReader:
     def __init__(self, propertiesFile="/etc/arsnova/arsnova.properties"):
         self.readProperties(propertiesFile)
         self.host = os.environ.get("ARSNOVA_COUCHDB_HOST", self.host)
         self.port = os.environ.get("ARSNOVA_COUCHDB_PORT", self.port)
         self.dbName = os.environ.get("ARSNOVA_COUCHDB_NAME", self.dbName)
-        self.username = os.environ.get("ARSNOVA_COUCHDB_USERNAME", self.username)
-        self.password = os.environ.get("ARSNOVA_COUCHDB_PASSWORD", self.password)
+        self.username = os.environ.get(
+            "ARSNOVA_COUCHDB_USERNAME", self.username)
+        self.password = os.environ.get(
+            "ARSNOVA_COUCHDB_PASSWORD", self.password)
 
     def readProperties(self, fileName):
         f = open(fileName, "r")

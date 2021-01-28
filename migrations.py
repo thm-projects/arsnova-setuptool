@@ -3,13 +3,17 @@ import couchconnection
 import json
 import re
 import sys
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 from constants import LATEST_MIGRATION_VERSION, MIGRATIONS_DOCUMENT_ID
 
-(db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
+(db, conn) = couchconnection.arsnova_connection(
+    "/etc/arsnova/arsnova.properties")
 
 db_url = "/" + db
 migrations_url = db_url + "/" + MIGRATIONS_DOCUMENT_ID
+
 
 def bump(next_version):
     conn.request("GET", migrations_url)
@@ -18,6 +22,7 @@ def bump(next_version):
     migration["version"] = next_version
     res = conn.json_put(migrations_url, json.dumps(migration))
     return res.read()
+
 
 def migrate(migration):
     global db_url, migrations_url
@@ -58,7 +63,7 @@ def migrate(migration):
                             ds.append(val)
                     for d in ds:
                         d["questionVariant"] = "lecture"
-                    res = conn.json_post(bulk_url, json.dumps({"docs":ds}))
+                    res = conn.json_post(bulk_url, json.dumps({"docs": ds}))
                     result_docs = json.loads(res.read())
                     errors = []
                     for result in result_docs:
@@ -88,23 +93,25 @@ def migrate(migration):
         print(bump(current_version))
 
     if current_version == 2:
-      print("Deleting obsolete user ranking, understanding, and admin design documents...")
-      if not conn.delete(db_url + "/_design/user_ranking"):
-          print("User ranking design document not found")
-      if not conn.delete(db_url + "/_design/understanding"):
-          print("Understanding design document not found")
-      if not conn.delete(db_url + "/_design/admin"):
-          print("Admin design document not found")
-      # bump database version
-      current_version = 3
-      print(bump(current_version))
+        print(
+            "Deleting obsolete user ranking, understanding, and admin design documents...")
+        if not conn.delete(db_url + "/_design/user_ranking"):
+            print("User ranking design document not found")
+        if not conn.delete(db_url + "/_design/understanding"):
+            print("Understanding design document not found")
+        if not conn.delete(db_url + "/_design/admin"):
+            print("Admin design document not found")
+        # bump database version
+        current_version = 3
+        print(bump(current_version))
 
     if current_version == 3:
         def add_variant_to_freetext_abstention_answers():
             answers = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question_answer' && typeof doc.questionVariant === 'undefined' && doc.abstention == true) emit(doc._id, doc.questionId); }\" }"
 
             # get all bug-affected answer documents
-            res = conn.temp_view_with_params(db_url, "?include_docs=true", answers)
+            res = conn.temp_view_with_params(
+                db_url, "?include_docs=true", answers)
             doc = json.loads(res.read())
             questions = []
             answers = []
@@ -112,7 +119,8 @@ def migrate(migration):
                 questions.append(col["value"])
                 answers.append(col["doc"])
             # bulk fetch all (unique) question documents of which we found problematic answers
-            res = conn.json_post(all_docs_url + "?include_docs=true", json.dumps({"keys":list(set(questions))}))
+            res = conn.json_post(
+                all_docs_url + "?include_docs=true", json.dumps({"keys": list(set(questions))}))
             result_docs = json.loads(res.read())
             # we need to find the variant of each question so that we can put it into the answer document
             questions = []
@@ -123,14 +131,14 @@ def migrate(migration):
                     if answer["questionId"] == question["_id"]:
                         answer["questionVariant"] = question["questionVariant"]
             # bulk update the answers
-            res = conn.json_post(bulk_url, json.dumps({"docs":answers}))
+            res = conn.json_post(bulk_url, json.dumps({"docs": answers}))
             result_docs = json.loads(res.read())
             print(result_docs)
 
         print("Fixing freetext answers (abstentions) with missing question variant (#13313)...")
         add_variant_to_freetext_abstention_answers()
         # bump database version
-        current_version = 4;
+        current_version = 4
         print(bump(current_version))
 
     if current_version == 4:
@@ -155,11 +163,13 @@ def migrate(migration):
 
     if current_version == 6:
         print("Transforming pre-picture-answer freetext questions into text only questions (#15613)...")
+
         def add_text_answer_to_freetext_questions():
             old_freetext_qs = "{ \"map\": \"function(doc) { if (doc.type == 'skill_question' && doc.questionType == 'freetext' && typeof doc.textAnswerEnabled === 'undefined') emit(doc._id); }\" }"
 
             # get all bug-affected documents
-            res = conn.temp_view_with_params(db_url, "?include_docs=true", old_freetext_qs)
+            res = conn.temp_view_with_params(
+                db_url, "?include_docs=true", old_freetext_qs)
             doc = json.loads(res.read())
             questions = []
             for result in doc["rows"]:
@@ -169,7 +179,7 @@ def migrate(migration):
                 question["imageQuestion"] = False
                 question["textAnswerEnabled"] = True
             # bulk update the documents
-            res = conn.json_post(bulk_url, json.dumps({"docs":questions}))
+            res = conn.json_post(bulk_url, json.dumps({"docs": questions}))
             result_docs = json.loads(res.read())
             print(result_docs)
 
@@ -180,21 +190,25 @@ def migrate(migration):
 
     if current_version == 7:
         print("Transforming session documents to new learning progress options format (#15617)...")
+
         def change_learning_progress_property_on_session():
             sessions = "{ \"map\": \"function(doc) { if (doc.type == 'session' && doc.learningProgressType) emit(doc._id); }\" }"
 
-            res = conn.temp_view_with_params(db_url, "?include_docs=true", sessions)
+            res = conn.temp_view_with_params(
+                db_url, "?include_docs=true", sessions)
             doc = json.loads(res.read())
             sessions = []
             for result in doc["rows"]:
                 sessions.append(result["doc"])
             # change property 'learningProgressType' to 'learningProgressOptions'
             for session in sessions:
-                currentProgressType = session.pop("learningProgressType", "questions")
-                progressOptions = { "type": currentProgressType, "questionVariant": "" }
+                currentProgressType = session.pop(
+                    "learningProgressType", "questions")
+                progressOptions = {
+                    "type": currentProgressType, "questionVariant": ""}
                 session["learningProgressOptions"] = progressOptions
             # bulk update sessions
-            res = conn.json_post(bulk_url, json.dumps({"docs":sessions}))
+            res = conn.json_post(bulk_url, json.dumps({"docs": sessions}))
             result_docs = json.loads(res.read())
             print(result_docs)
 
@@ -220,29 +234,35 @@ def migrate(migration):
             if user_doc["key"] != user_doc["key"].lower():
                 # create a list of user documents since there might be multiple
                 # items for different captitalizations
-                affected_users.setdefault(user_doc["key"].lower(), []).append(user_doc["value"])
+                affected_users.setdefault(
+                    user_doc["key"].lower(), []).append(user_doc["value"])
             else:
                 unaffected_users.append(user_doc["key"])
         for uid, users in affected_users.items():
             migration_targets = []
             for user in users:
                 if "activationKey" in user:
-                    print("User %s has not been activated. Deleting document %s..." % (user["username"], user["_id"]))
+                    print("User %s has not been activated. Deleting document %s..." % (
+                        user["username"], user["_id"]))
                     conn.delete(db_url + "/" + user["_id"])
                 elif uid in unaffected_users:
-                    print("Migration target exists. Locking duplicate user %s (document %s)..." % (user["username"], user["_id"]))
+                    print("Migration target exists. Locking duplicate user %s (document %s)..." % (
+                        user["username"], user["_id"]))
                     user["locked"] = True
                     bulk_docs.append(user)
                 else:
                     migration_targets.append(user)
             if len(migration_targets) > 1:
-                print("Cannot migrate some users automatically. Conflicting duplicate users found:")
+                print(
+                    "Cannot migrate some users automatically. Conflicting duplicate users found:")
                 for user in migration_targets:
-                    print("Locking user %s (document %s)..." % (user["username"], user["_id"]))
+                    print("Locking user %s (document %s)..." %
+                          (user["username"], user["_id"]))
                     user["locked"] = True
                     bulk_docs.append(user)
             elif migration_targets:
-                print("Migrating user %s (document %s)..." % (user["username"], user["_id"]))
+                print("Migrating user %s (document %s)..." %
+                      (user["username"], user["_id"]))
                 user["username"] = uid
                 bulk_docs.append(user)
 
@@ -253,7 +273,8 @@ def migrate(migration):
         #   4) Migrate all remaining IDs (LDAP)
         def reassign_data(type, user_prop):
             print("Reassigning %s data to migrated users..." % type)
-            migration_view = "{ \"map\": \"function(doc) { function check(doc, type, uid) { return doc.type === type && uid !== uid.toLowerCase() && uid.indexOf('Guest') !== 0; } if (check(doc, '%s', doc.%s)) { emit(doc._id, doc); }}\" }" % (type, user_prop)
+            migration_view = "{ \"map\": \"function(doc) { function check(doc, type, uid) { return doc.type === type && uid !== uid.toLowerCase() && uid.indexOf('Guest') !== 0; } if (check(doc, '%s', doc.%s)) { emit(doc._id, doc); }}\" }" % (
+                type, user_prop)
             res = conn.temp_view(db_url, migration_view)
             doc = json.loads(res.read())
             print("Documents: %d" % len(doc["rows"]))
@@ -266,7 +287,8 @@ def migrate(migration):
                     val[user_prop] = val[user_prop].lower()
                     bulk_docs.append(val)
                 else:
-                    print("Skipped %s (Facebook/Google account)" % val[user_prop])
+                    print("Skipped %s (Facebook/Google account)" %
+                          val[user_prop])
 
         reassign_data("session", "creator")
         reassign_data("interposed_question", "creator")
@@ -292,7 +314,8 @@ def migrate(migration):
         for affected_doc in docs["rows"]:
             val = affected_doc["value"]
             print(affected_doc["id"], val["motdkey"])
-            conn.request("GET", db_url + "/_design/session/_view/by_keyword?key=" + '"%s"' % val["sessionkey"])
+            conn.request(
+                "GET", db_url + "/_design/session/_view/by_keyword?key=" + '"%s"' % val["sessionkey"])
             session_res = conn.getresponse()
             session_docs = json.loads(session_res.read())
             if len(session_docs["rows"]) > 0:
@@ -323,12 +346,14 @@ def migrate(migration):
 
     conn.json_post(cleanup_url)
 
+
 conn.request("GET", migrations_url)
 res = conn.getresponse()
 mig = res.read()
 if res.status == 404:
-    res = conn.json_post(db_url, json.dumps({"_id":MIGRATIONS_DOCUMENT_ID, "version":0}))
+    res = conn.json_post(db_url, json.dumps(
+        {"_id": MIGRATIONS_DOCUMENT_ID, "version": 0}))
     res.read()
-    migrate({"version":0})
+    migrate({"version": 0})
 else:
     migrate(json.loads(mig))
