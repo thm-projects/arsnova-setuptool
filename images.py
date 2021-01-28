@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # This is a one-off script to list all documents containing inline images.
 # Once these images are removed from the database, this script can be
