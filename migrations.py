@@ -2,7 +2,10 @@
 import couchconnection
 import json
 import re
+import sys
 import urllib.request, urllib.parse, urllib.error
+
+LATEST_MIGRATION_VERSION = 11
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
 
@@ -24,6 +27,11 @@ def migrate(migration):
     bulk_url = db_url + "/_bulk_docs"
     cleanup_url = db_url + "/_view_cleanup"
     current_version = migration["version"]
+    if current_version >= LATEST_MIGRATION_VERSION:
+        print("Database is already up to date.")
+        sys.exit(0)
+    else:
+        conn.require_legacy_couchdb_version()
 
     # Changes to 'skill_question' and 'skill_question_answer':
     #   added 'questionVariant' field, defaulting to 'lecture' value

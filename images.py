@@ -11,6 +11,7 @@ import tempfile, os, shutil, sys
 import argparse
 
 (db, conn) = couchconnection.arsnova_connection("/etc/arsnova/arsnova.properties")
+conn.require_legacy_couchdb_version()
 db_url = "/" + db
 all_docs_url = db_url + "/_all_docs"
 

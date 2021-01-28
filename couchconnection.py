@@ -2,6 +2,8 @@ import http.client
 import base64
 import json
 import configreader
+import sys
+from distutils.version import LooseVersion as V
 
 class CouchConnection(http.client.HTTPConnection):
     """docstring for CouchConnection"""
@@ -54,6 +56,15 @@ class CouchConnection(http.client.HTTPConnection):
 
     def temp_view_with_params(self, path, params, body, header={}):
         return self.json_post(path + "/_temp_view" + params, body, header)
+
+    def require_legacy_couchdb_version(self):
+        self.request("GET", "/")
+        res = self.getresponse()
+        couchdb_info = json.loads(res.read())
+        couchdb_version = V(couchdb_info["version"])
+        version_str = "2.0.0"
+        if couchdb_version >= V(version_str):
+            sys.exit("This script does not support CouchDB %s or newer." % version_str)
 
 
 def arsnova_connection(propertypath):
