@@ -55,7 +55,7 @@ def migrate(migration):
             def migrate_with_temp_view(temp_view):
                 while True:
                     res = conn.temp_view(db_url, temp_view)
-                    doc = json.loads(res.read())
+                    doc = json.loads(res.read().decode('utf-8'))
                     ds = []
                     for col in doc["rows"]:
                         val = col["value"]
@@ -64,7 +64,7 @@ def migrate(migration):
                     for d in ds:
                         d["questionVariant"] = "lecture"
                     res = conn.json_post(bulk_url, json.dumps({"docs": ds}))
-                    result_docs = json.loads(res.read())
+                    result_docs = json.loads(res.read().decode('utf-8'))
                     errors = []
                     for result in result_docs:
                         if "error" in result:
@@ -112,7 +112,7 @@ def migrate(migration):
             # get all bug-affected answer documents
             res = conn.temp_view_with_params(
                 db_url, "?include_docs=true", answers)
-            doc = json.loads(res.read())
+            doc = json.loads(res.read().decode('utf-8'))
             questions = []
             answers = []
             for col in doc["rows"]:
@@ -121,7 +121,7 @@ def migrate(migration):
             # bulk fetch all (unique) question documents of which we found problematic answers
             res = conn.json_post(
                 all_docs_url + "?include_docs=true", json.dumps({"keys": list(set(questions))}))
-            result_docs = json.loads(res.read())
+            result_docs = json.loads(res.read().decode('utf-8'))
             # we need to find the variant of each question so that we can put it into the answer document
             questions = []
             for result in result_docs["rows"]:
@@ -132,7 +132,7 @@ def migrate(migration):
                         answer["questionVariant"] = question["questionVariant"]
             # bulk update the answers
             res = conn.json_post(bulk_url, json.dumps({"docs": answers}))
-            result_docs = json.loads(res.read())
+            result_docs = json.loads(res.read().decode('utf-8'))
             print(result_docs)
 
         print("Fixing freetext answers (abstentions) with missing question variant (#13313)...")
@@ -170,7 +170,7 @@ def migrate(migration):
             # get all bug-affected documents
             res = conn.temp_view_with_params(
                 db_url, "?include_docs=true", old_freetext_qs)
-            doc = json.loads(res.read())
+            doc = json.loads(res.read().decode('utf-8'))
             questions = []
             for result in doc["rows"]:
                 questions.append(result["doc"])
@@ -180,7 +180,7 @@ def migrate(migration):
                 question["textAnswerEnabled"] = True
             # bulk update the documents
             res = conn.json_post(bulk_url, json.dumps({"docs": questions}))
-            result_docs = json.loads(res.read())
+            result_docs = json.loads(res.read().decode('utf-8'))
             print(result_docs)
 
         add_text_answer_to_freetext_questions()
@@ -196,7 +196,7 @@ def migrate(migration):
 
             res = conn.temp_view_with_params(
                 db_url, "?include_docs=true", sessions)
-            doc = json.loads(res.read())
+            doc = json.loads(res.read().decode('utf-8'))
             sessions = []
             for result in doc["rows"]:
                 sessions.append(result["doc"])
@@ -209,7 +209,7 @@ def migrate(migration):
                 session["learningProgressOptions"] = progressOptions
             # bulk update sessions
             res = conn.json_post(bulk_url, json.dumps({"docs": sessions}))
-            result_docs = json.loads(res.read())
+            result_docs = json.loads(res.read().decode('utf-8'))
             print(result_docs)
 
         change_learning_progress_property_on_session()
@@ -221,7 +221,7 @@ def migrate(migration):
         print("Migrating DB and LDAP user IDs to lowercase...")
         conn.request("GET", db_url + "/_design/user/_view/all")
         res = conn.getresponse()
-        doc = json.loads(res.read())
+        doc = json.loads(res.read().decode('utf-8'))
         affected_users = {}
         unaffected_users = []
         bulk_docs = []
@@ -276,7 +276,7 @@ def migrate(migration):
             migration_view = "{ \"map\": \"function(doc) { function check(doc, type, uid) { return doc.type === type && uid !== uid.toLowerCase() && uid.indexOf('Guest') !== 0; } if (check(doc, '%s', doc.%s)) { emit(doc._id, doc); }}\" }" % (
                 type, user_prop)
             res = conn.temp_view(db_url, migration_view)
-            doc = json.loads(res.read())
+            doc = json.loads(res.read().decode('utf-8'))
             print("Documents: %d" % len(doc["rows"]))
             for affected_doc in doc["rows"]:
                 val = affected_doc["value"]
@@ -308,7 +308,7 @@ def migrate(migration):
         print("Migrating MotD documents...")
         migration_view = "{ \"map\": \"function(doc) { if (doc.type === 'motd' && doc.audience === 'session' && !doc.sessionId) { emit(null, doc); } }\" }"
         res = conn.temp_view(db_url, migration_view)
-        docs = json.loads(res.read())
+        docs = json.loads(res.read().decode('utf-8'))
         print("Documents: %d" % len(docs["rows"]))
         bulk_docs = []
         for affected_doc in docs["rows"]:
@@ -317,7 +317,7 @@ def migrate(migration):
             conn.request(
                 "GET", db_url + "/_design/session/_view/by_keyword?key=" + '"%s"' % val["sessionkey"])
             session_res = conn.getresponse()
-            session_docs = json.loads(session_res.read())
+            session_docs = json.loads(session_res.read().decode('utf-8'))
             if len(session_docs["rows"]) > 0:
                 val["sessionId"] = session_docs["rows"][0]["id"]
                 bulk_docs.append(val)
@@ -356,4 +356,4 @@ if res.status == 404:
     res.read()
     migrate({"version": 0})
 else:
-    migrate(json.loads(mig))
+    migrate(json.loads(mig.decode('utf-8')))

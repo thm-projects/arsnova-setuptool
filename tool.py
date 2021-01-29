@@ -50,7 +50,7 @@ def view_read(conn, view_url):
 
 
 def view_revision(conn, view_url):
-    view_document = json.loads(view_read(conn, view_url))
+    view_document = json.loads(view_read(conn, view_url).decode('utf-8'))
     return view_document["_rev"]
 
 

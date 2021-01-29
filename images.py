@@ -64,7 +64,7 @@ def load_image_metadata():
     }""".replace('\n', '').replace('\t', '').strip()
 
     res = conn.temp_view(db_url, documents_with_inline_images)
-    return json.loads(res.read())
+    return json.loads(res.read().decode('utf-8'))
 
 
 def dump_images(doc, target_dir):
@@ -127,7 +127,7 @@ def dump_images(doc, target_dir):
     # bulk fetch all image documents
     res = conn.json_post(all_docs_url + "?include_docs=true",
                          json.dumps({"keys": document_ids}))
-    result_docs = json.loads(res.read())
+    result_docs = json.loads(res.read().decode('utf-8'))
     image_data = {}
     for col in result_docs["rows"]:
         image_data[col["id"]] = []

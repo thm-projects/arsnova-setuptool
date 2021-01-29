@@ -48,7 +48,7 @@ class CouchConnection(http.client.HTTPConnection):
     def delete(self, path, body=None, header={}):
         self.request("GET", path)
         res = self.getresponse()
-        doc = json.loads(res.read())
+        doc = json.loads(res.read().decode('utf-8'))
         if "_rev" in doc:
             self.request("DELETE", path + "?rev=" + doc["_rev"], body, header)
             res = self.getresponse()
@@ -65,7 +65,7 @@ class CouchConnection(http.client.HTTPConnection):
     def require_legacy_couchdb_version(self):
         self.request("GET", "/")
         res = self.getresponse()
-        couchdb_info = json.loads(res.read())
+        couchdb_info = json.loads(res.read().decode('utf-8'))
         couchdb_version = V(couchdb_info["version"])
         version_str = "2.0.0"
         if couchdb_version >= V(version_str):

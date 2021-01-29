@@ -14,13 +14,13 @@ for arg in sys.argv[1:]:
     # TODO: Validate _id format
     url = db_url + "/" + arg
     res = conn.get(url)
-    doc = json.loads(res.read())
+    doc = json.loads(res.read().decode('utf-8'))
     # only consider deleted documents
     if "error" in doc and doc["reason"] == "deleted":
         # retrieve document meta info
         url = url + "?revs=true&open_revs=all"
         res = conn.get(url)
-        body = res.read()
+        body = res.read().decode('utf-8')
         # remove non-json data, then create object
         clean_body = body[body.find("{"):body.rfind("}")+1]
         doc = json.loads(clean_body)
@@ -31,7 +31,7 @@ for arg in sys.argv[1:]:
 
         url = db_url + "/" + arg + "?rev=" + last_rev
         res = conn.get(url)
-        restored_doc = json.loads(res.read())
+        restored_doc = json.loads(res.read().decode('utf-8'))
         if not "error" in restored_doc:
             # successfully restored the document, now push it back to the db
             rev_number = doc["_revisions"]["start"]
